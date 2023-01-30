@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500&display=swap");
+
+* {
+  font-family: "Poppins", sans-serif;
+  /* Disable copying data */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* ./src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* iframe {
+  pointer-events: none;
+} */
+
+.zoom-in {
+  animation: zoom-in 0.6s ease;
+}
+
+@keyframes zoom-in {
+  0% {
+    transform: scale(0, 0);
+  }
+
+  50% {
+    transform: scale(1, 1);
+  }
+
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  display: block;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  outline: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: rgb(30, 138, 132); */
+}
+
+.bg-green-100 {
+  background-color: #d1fae5 !important;
+}
+
+.bg-opacity-60 {
+  --tw-bg-opacity: 0.6 !important;
+}
+
+.bg-opacity-0 {
+  --tw-bg-opacity: 0 !important;
+}
+
+.bg-yellow-600 {
+  background-color: #d97708 !important;
+}
+
+.bg-red-600 {
+  background-color: rgba(220, 38, 38) !important;
+}
