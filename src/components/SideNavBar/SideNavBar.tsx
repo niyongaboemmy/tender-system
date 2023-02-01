@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from "react";
 import { IconType } from "react-icons";
-import { FaChalkboardTeacher, FaUserCircle } from "react-icons/fa";
+import { AiOutlineAppstoreAdd, AiOutlineDashboard } from "react-icons/ai";
+import { FaUserCircle } from "react-icons/fa";
+import { HiOutlineBriefcase } from "react-icons/hi";
 import { MdClose } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
@@ -36,9 +38,21 @@ export class SideNavBar extends Component<SideNavBarProps, SideNavBarState> {
       },
       {
         key: MENU_TYPE.ACTIVITIES,
-        title: "My exams",
+        title: "Dashboard",
         path: "/dashboard",
-        icon: FaChalkboardTeacher,
+        icon: AiOutlineDashboard,
+      },
+      {
+        key: MENU_TYPE.ACTIVITIES,
+        title: "Create tender",
+        path: "/create-tender",
+        icon: AiOutlineAppstoreAdd,
+      },
+      {
+        key: MENU_TYPE.ACTIVITIES,
+        title: "Tenders",
+        path: "/tenders-list",
+        icon: HiOutlineBriefcase,
       },
     ];
     const baseClass =

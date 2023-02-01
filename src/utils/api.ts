@@ -1,4 +1,4 @@
-export const API_URL = "https://universalbridge.rw/exapi";
+export const API_URL = "https://deafactionrda.org/tapi";
 // export const DISTRICTS_LOCATION = "http://localhost:3001/locations.json";
 export const DISTRICTS_LOCATION = "https://vms.rw/locations.json";
 export const IMAGES_PATH = {

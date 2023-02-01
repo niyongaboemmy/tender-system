@@ -8,6 +8,29 @@ import { setAxiosToken } from "../utils/AxiosToken";
  * * ****************************** INTERFACES *****************************
  */
 
+export enum UserType {
+  HOLDER = "HOLDER",
+  BIDER = "BIDER",
+}
+export enum BooleanEnum {
+  TRUE = "TRUE",
+  FALSE = "FALSE",
+}
+export enum DocumentType {
+  ADMIN = "ADMIN",
+  TECHNICAL = "TECHNICAL",
+  FINANCIAL = "FINANCIAL",
+}
+export enum TenderLevel {
+  INTERNATIONAL = "INTERNATIONAL",
+  NATIONAL = "NATIONAL",
+}
+export enum DocumentValidationStep {
+  ONE = "ONE",
+  TWO = "TWO",
+  THREE = "THREE",
+}
+
 export interface BasicInfo {
   roles: any;
   banks: any;

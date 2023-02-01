@@ -4,15 +4,30 @@ import { ActionTypes } from "./types";
 import { API_URL } from "../utils/api";
 import { APP_TOKEN_NAME, setAxiosToken } from "../utils/AxiosToken";
 import { errorToText } from "../utils/functions";
+import { UserType } from "./system.action";
 
 /**
  * * ****************************** INTERFACES *****************************
  */
 
 export interface API_GetUsersDetails {
-  user_id: string;
-  user_code: string;
   jwt: string;
+  user_email: string;
+  user_id: string;
+  user_phone: string;
+}
+
+export interface RegisterDataInterface {
+  user_phone: string;
+  type: UserType;
+  names: string;
+  user_email: string;
+  password: string;
+  compony_name: string;
+  country: string;
+  company_email: string;
+  company_phone: string;
+  tin_number: string;
 }
 
 export interface Auth {
@@ -286,4 +301,28 @@ export const FC_ForgetPassword_Check = (
       callback(false, "errorToText(error:any)");
     }
   };
+};
+
+export const FC_RegisterAccount = async (
+  data: RegisterDataInterface,
+  callBack: (
+    loading: boolean,
+    res: { type: "success" | "error"; msg: string } | null
+  ) => void
+) => {
+  callBack(true, null);
+  try {
+    const res = await axios.post(`${API_URL}/user/register`, data);
+    console.log("Res: ", res.data);
+    callBack(false, {
+      type: "success",
+      msg: "Registered successfully",
+    });
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, {
+      type: "error",
+      msg: errorToText(error),
+    });
+  }
 };

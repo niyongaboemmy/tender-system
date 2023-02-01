@@ -20,6 +20,8 @@ import AppLoading from "./components/AppLoading/AppLoading";
 import Alert, { AlertType } from "./components/Alert/Alert";
 import NetworkError from "./components/NetworkError/NetworkError";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import { LoginPage } from "./containers/LoginPage/LoginPage";
+import { RegisterUser } from "./containers/RegisterUser/RegisterUser";
 
 export const Container = (props: {
   isAuthenticated: boolean;
@@ -161,7 +163,9 @@ class _App extends React.Component<AppProps, AppState> {
               <div>
                 <Switch>
                   <Route exact path="/" component={Homepage} />
-                  <Route exact path="/login" component={Homepage} />
+                  <Route exact path="/tenders" component={Homepage} />
+                  <Route exact path="/login" component={LoginPage} />
+                  <Route exact path="/register" component={RegisterUser} />
                   <Suspense fallback={<LazyLoading />}>
                     <Container
                       isAuthenticated={this.props.auth.isAuthenticated}

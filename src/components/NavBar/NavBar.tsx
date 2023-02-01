@@ -59,14 +59,9 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
                   alt="Valuation Management System"
                 />
               </div>
-              <div className="hidden text-white font-extrabold text-lg md:flex flex-row items-center gap-2">
-                <div className="">Candidate</div>
-                <div className="text-yellow-300">
-                  (CODE:{" "}
-                  {this.props.auth.user !== null &&
-                    this.props.auth.user.user_code}
-                  )
-                </div>
+              <div className="hidden text-white font-extrabold text-lg md:flex flex-row items-center gap-1">
+                <div className="">UR Holding</div>
+                <div className="text-yellow-300">Tendering system</div>
               </div>
             </div>
             {this.props.CheckIfDoingExam === false && (
@@ -95,10 +90,10 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
                             </div>
                           </div>
                           <div className="font-bold text-center text-sm text-gray-400">
-                            <span>CANDIDATE CODE</span>
+                            <span>Username</span>
                           </div>
                           <div className="font-bold text-center mb-2 text-primary-800">
-                            <span>({this.props.auth.user?.user_code})</span>
+                            <span>({this.props.auth.user?.user_phone})</span>
                           </div>
                         </div>
 

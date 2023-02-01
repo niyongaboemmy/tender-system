@@ -28,12 +28,27 @@ export class PublicNav extends Component<PublicNavProps, PublicNavState> {
             </div>
             <div className="flex fex-row items-center justify-end gap-2 my-2">
               <NavLink
-                to={"/"}
+                to={"/tenders"}
                 className="flex flex-row items-center justify-center gap-1 px-4 py-2 rounded bg-white hover:bg-primary-800 hover:text-white group"
                 activeClassName="bg-primary-50 text-primary-800 font-bold"
               >
-                Home
+                Tenders
               </NavLink>
+              <NavLink
+                to={"/login"}
+                className="flex flex-row items-center justify-center gap-1 px-4 py-2 rounded bg-white hover:bg-primary-800 hover:text-white group"
+                activeClassName="bg-primary-50 text-primary-800 font-bold"
+              >
+                Login
+              </NavLink>
+              <NavLink
+                to={"/register"}
+                className="flex flex-row items-center justify-center gap-1 px-4 py-2 rounded bg-white hover:bg-primary-800 hover:text-white group"
+                activeClassName="bg-primary-50 text-primary-800 font-bold"
+              >
+                Register
+              </NavLink>
+
               <NavLink
                 to={"/support"}
                 className="flex flex-row items-center justify-center gap-1 px-3 py-2 rounded bg-white hover:bg-primary-800 hover:text-white group pl-2"
