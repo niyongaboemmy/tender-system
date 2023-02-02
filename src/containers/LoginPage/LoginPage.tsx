@@ -48,51 +48,7 @@ class _Login extends Component<LoginProps, LoginState> {
       passwordDisplay: false,
     };
   }
-  LoginFn = async (e: any) => {
-    e.preventDefault();
-    if (this.state.username === "") {
-      return this.setState({
-        error: {
-          target: "username",
-          msg: "Please fill phone number or email",
-        },
-      });
-    }
-    if (this.state.password === "") {
-      return this.setState({
-        error: {
-          target: "password",
-          msg: "Please fill password",
-        },
-      });
-    }
-    if (this.state.username !== "" && this.state.password !== "") {
-      this.setState({ loading: true });
-      this.props.FC_Login(
-        { username: this.state.username, password: this.state.password },
-        (status: boolean, msg: string) => {
-          status === false &&
-            this.setState({
-              error: {
-                target: "main",
-                msg: msg,
-              },
-            });
-          if (status === true) {
-            this.props.system.basic_info === null &&
-              this.props.FC_GetSystemInfo((loading_status: boolean) => {
-                this.setState({ loading: loading_status });
-                loading_status === true &&
-                  this.props.system.basic_info !== null &&
-                  this.setState({ redirect: true });
-              });
-          } else {
-            this.setState({ loading: false });
-          }
-        }
-      );
-    }
-  };
+
   componentDidMount = () => {};
   render() {
     if (

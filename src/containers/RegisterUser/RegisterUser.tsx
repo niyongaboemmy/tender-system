@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import { Redirect } from "react-router";
 import Container from "../../components/Container/Container";
 import PublicNav from "../../components/PublicNav/PublicNav";
-import { Login } from "../../components/Login/Login";
 import { Register } from "../../components/Register/Register";
 
 interface LoginProps {

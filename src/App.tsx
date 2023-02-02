@@ -48,15 +48,15 @@ const Dashboard = lazy(() =>
   }))
 );
 
-const DoExam = lazy(() =>
-  import("./containers/DoExam/DoExam").then(({ DoExam }) => ({
-    default: DoExam,
+const TendersList = lazy(() =>
+  import("./containers/TendersList/TendersList").then(({ TendersList }) => ({
+    default: TendersList,
   }))
 );
 
-const DoExamNoExam = lazy(() =>
-  import("./containers/DoExam/DoExamNoExam").then(({ DoExamNoExam }) => ({
-    default: DoExamNoExam,
+const CreateTender = lazy(() =>
+  import("./containers/CreateTender/CreateTender").then(({ CreateTender }) => ({
+    default: CreateTender,
   }))
 );
 
@@ -94,12 +94,12 @@ class _App extends React.Component<AppProps, AppState> {
         this.setState({ loading: false });
       }
     });
-    setTimeout(
-      () => {
-        this.setState({ showSideNav: false });
-      },
-      this.props.system.showNavigation === false ? 3000 : 10
-    );
+    if (this.props.system.basic_info === null) {
+      this.setState({ loading: true });
+      this.props.FC_GetSystemInfo((loading: boolean) =>
+        this.setState({ loading: loading })
+      );
+    }
   }
 
   render() {
@@ -180,8 +180,8 @@ class _App extends React.Component<AppProps, AppState> {
                       />
                     </Container>
                     <ProtectedRoute
-                      path="/do-exam/:exam_id"
-                      component={DoExam}
+                      path="/tenders-list"
+                      component={TendersList}
                       isAuthenticated={this.props.auth.isAuthenticated}
                       authenticationPath={authenticationPath}
                       loading={this.state.loading}
@@ -191,8 +191,8 @@ class _App extends React.Component<AppProps, AppState> {
                       isAuthenticated={this.props.auth.isAuthenticated}
                     >
                       <ProtectedRoute
-                        path="/do-exam"
-                        component={DoExamNoExam}
+                        path="/create-tender"
+                        component={CreateTender}
                         isAuthenticated={this.props.auth.isAuthenticated}
                         authenticationPath={authenticationPath}
                         loading={this.state.loading}

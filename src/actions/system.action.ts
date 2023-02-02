@@ -31,18 +31,25 @@ export enum DocumentValidationStep {
   THREE = "THREE",
 }
 
-export interface BasicInfo {
-  roles: any;
-  banks: any;
+export interface TenderDocumentInterface {
+  document_id: string;
+  title: string;
+  type: DocumentType;
 }
 
-interface BasicInfoGetStrings {
-  roles: {
-    access: string;
-    role_id: string;
-    role_name: string;
-  }[];
-  banks: any;
+export interface TenderCategoryInterface {
+  category_id: string;
+  category: string;
+}
+
+export interface BasicInfo {
+  category: TenderCategoryInterface[];
+  document: TenderDocumentInterface[];
+}
+
+interface BasicInfoGetData {
+  category: TenderCategoryInterface[];
+  document: TenderDocumentInterface[];
 }
 
 export interface System {
@@ -82,9 +89,7 @@ export const FC_GetSystemInfo = (callback: (loading: boolean) => void) => {
     callback(true);
     setAxiosToken();
     try {
-      const res = await axios.get<BasicInfoGetStrings>(
-        `${API_URL}/register/basicinfo`
-      );
+      const res = await axios.get<BasicInfoGetData>(`${API_URL}/basics/data`);
 
       console.log({ system_basic_info: res.data });
 

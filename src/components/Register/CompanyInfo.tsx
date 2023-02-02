@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import Alert, { AlertType } from "../Alert/Alert";
 
 interface CompanyInfoProps {

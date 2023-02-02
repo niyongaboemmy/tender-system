@@ -81,9 +81,13 @@ class _Login extends Component<LoginProps, LoginState> {
               redirect: false,
             });
           if (status === true) {
-            // setTimeout(() => {
-            this.setState({ redirect: true });
-            // }, 1000);
+            this.props.system.basic_info === null &&
+              this.props.FC_GetSystemInfo((loading_status: boolean) => {
+                this.setState({ loading: loading_status });
+                loading_status === true &&
+                  this.props.system.basic_info !== null &&
+                  this.setState({ redirect: true });
+              });
           }
         }
       );

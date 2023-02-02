@@ -10,11 +10,23 @@ import { UserType } from "./system.action";
  * * ****************************** INTERFACES *****************************
  */
 
+export interface UserCompany {
+  company_id: string;
+  compony_name: string;
+  country: string;
+  company_email: string;
+  company_phone: string;
+  tin_number: string;
+}
+
 export interface API_GetUsersDetails {
   jwt: string;
+  names: string;
   user_email: string;
   user_id: string;
   user_phone: string;
+  type: UserType;
+  company: UserCompany[];
 }
 
 export interface RegisterDataInterface {

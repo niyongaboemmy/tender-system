@@ -1,13 +1,8 @@
 import React, { Component } from "react";
-import {
-  AiFillEye,
-  AiFillEyeInvisible,
-  AiOutlineFileAdd,
-  AiOutlineLoading3Quarters,
-} from "react-icons/ai";
-import { FaUserCircle } from "react-icons/fa";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoMdPersonAdd } from "react-icons/io";
 import { connect } from "react-redux";
+import { Redirect } from "react-router";
 import {
   Auth,
   FC_GetSystemInfo,
@@ -217,14 +212,14 @@ class _Register extends Component<RegisterProps, RegisterState> {
             success: "",
           });
         if (res?.type === "success") {
-          // setTimeout(() => {
           this.setState({
             error: null,
-            loading: false,
-            redirect: false,
+            loading: true,
             success: res.msg,
           });
-          // }, 1000);
+          setTimeout(() => {
+            this.setState({ redirect: true });
+          }, 1000);
         }
       }
     );
@@ -255,6 +250,9 @@ class _Register extends Component<RegisterProps, RegisterState> {
     return false;
   };
   render() {
+    if (this.state.redirect === true) {
+      return <Redirect to={"/login"} />;
+    }
     return (
       <div className="bg-white w-full md:w-3/5 lg:w-4/5 rounded-lg">
         <div className="w-full p-3 px-5 md:py-8 md:px-8">
@@ -336,6 +334,15 @@ class _Register extends Component<RegisterProps, RegisterState> {
                   error={this.state.error}
                 />
               )}
+              {this.state.success !== "" && (
+                <div className="mt-2">
+                  <Alert
+                    alertType={AlertType.SUCCESS}
+                    title={this.state.success}
+                    close={() => this.setState({ error: null, success: "" })}
+                  />
+                </div>
+              )}
               {this.state.error?.target === "main" && (
                 <div className="mt-2">
                   <Alert
@@ -345,7 +352,18 @@ class _Register extends Component<RegisterProps, RegisterState> {
                   />
                 </div>
               )}
-              <div className="flex flex-row items-center justify-end mt-6">
+              <div className="flex flex-row items-center justify-end mt-6 gap-3">
+                {this.state.selectedStep === StepItem.STEP2 &&
+                  this.state.loading === false && (
+                    <div
+                      onClick={() =>
+                        this.setState({ selectedStep: StepItem.STEP1 })
+                      }
+                      className="px-3 py-2 rounded-md bg-primary-100 text-primary-800 hover:bg-primary-800 hover:text-white cursor-pointer w-max"
+                    >
+                      Edit personal info
+                    </div>
+                  )}
                 <button
                   className={`flex flex-row items-center justify-center gap-2 p-2 pr-4 ${
                     this.state.selectedStep === StepItem.STEP2

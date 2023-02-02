@@ -1,7 +1,7 @@
 import React from "react";
 import { IconType } from "react-icons";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { FaRegUser, FaRegUserCircle, FaUserCircle } from "react-icons/fa";
+import { FaRegUser, FaUserCircle } from "react-icons/fa";
 import { HiBriefcase, HiOutlineBriefcase } from "react-icons/hi";
 
 export enum StepItem {
