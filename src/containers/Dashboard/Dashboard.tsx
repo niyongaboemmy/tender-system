@@ -1,16 +1,15 @@
 import React, { Component, Fragment } from "react";
 import { BsFileMedicalFill } from "react-icons/bs";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-import { Auth, FC_SetShowNavigationStatus, System } from "../../actions";
+import { Link, Redirect } from "react-router-dom";
 import {
-  ExamInterface,
-  ExamMarksGetInterface,
-  FC_GetUserExams,
-  FC_GetUserTotalExamMarks,
-} from "../../actions/exam.action";
+  Auth,
+  FC_SetShowNavigationStatus,
+  System,
+  UserType,
+} from "../../actions";
+import { ExamInterface } from "../../actions/exam.action";
 import { StoreState } from "../../reducers";
-import { search } from "../../utils/functions";
 
 interface DashboardProps {
   auth: Auth;
@@ -41,121 +40,16 @@ export class _Dashboard extends Component<DashboardProps, DashboardState> {
       totalMarks: null,
     };
   }
-  LoadExamsList = () => {
-    this.setState({ loading: true });
-    this.props.auth.user !== null &&
-      FC_GetUserExams(
-        (
-          loading: boolean,
-          res: {
-            data: ExamInterface[];
-            type: "error" | "success";
-            msg: string;
-          } | null
-        ) => {
-          this.setState({ loading: loading });
-          if (res?.type === "success") {
-            this.setState({
-              exams: res.data,
-              loading: false,
-              error: "",
-            });
-          }
-          if (res?.type === "error") {
-            this.setState({
-              exams: [],
-              loading: false,
-              // error: res.msg,
-            });
-          }
-        }
-      );
-  };
 
-  // Get User total marks
-  GetUserExamTotalMarks = () => {
-    const User = this.props.auth.user;
-    const Exam = this.state.selectedExam;
-    if (User === null) {
-      return this.setState({ error: "User not found!" });
-    }
-    if (Exam === null) {
-      return this.setState({ error: "Exam not found!" });
-    }
-    this.setState({ loadingMarks: true, loading: false });
-    FC_GetUserTotalExamMarks(
-      User.user_id,
-      Exam.exam_id,
-      (
-        loading: boolean,
-        res: {
-          data: ExamMarksGetInterface[];
-          type: "error" | "success";
-          msg: string;
-        } | null
-      ) => {
-        this.setState({ loadingMarks: loading });
-        if (res?.type === "success" && res.data !== null) {
-          const selectedMark = res.data.find(
-            (itm) =>
-              this.props.auth.user !== null &&
-              itm.user_id === this.props.auth.user.user_id
-          );
-          if (selectedMark !== undefined) {
-            const marks =
-              selectedMark.quest_marks.toString() === "0"
-                ? 0
-                : (parseInt(selectedMark.cand_marks as unknown as string) *
-                    100) /
-                  parseInt(selectedMark.quest_marks as unknown as string);
-            this.setState({
-              loadingMarks: false,
-              loading: false,
-              totalMarks: marks,
-            });
-          } else {
-            this.setState({
-              loadingMarks: false,
-              loading: false,
-              totalMarks: 0,
-              error: "Your marks are not found!",
-            });
-          }
-        }
-        if (res?.type === "error") {
-          this.setState({
-            loadingMarks: false,
-            loading: false,
-            error: res.msg,
-            totalMarks: 0,
-          });
-        }
-      }
-    );
-  };
-
-  GetFilteredData = (data: ExamInterface[]): ExamInterface[] => {
-    return search(data, this.state.searchData) as ExamInterface[];
-  };
-
-  VerifyTime = (date: string) => {
-    var today = new Date();
-    var examDate = new Date(date);
-    console.log("TEST TIME: ", {
-      exam_date: examDate,
-      today: today,
-    });
-    return examDate <= today ? true : false;
-  };
-
-  componentDidMount = () => {
-    if (this.props.system.showNavigation === false) {
-      this.props.FC_SetShowNavigationStatus(true);
-    }
-    this.LoadExamsList();
-  };
+  componentDidMount = () => {};
 
   render() {
+    if (
+      this.props.auth.user !== null &&
+      this.props.auth.user.type === UserType.BIDER
+    ) {
+      return <Redirect to={"/applications"} />;
+    }
     return (
       <Fragment>
         <div className="mx-0 md:mx-4">

@@ -31,6 +31,16 @@ export enum DocumentValidationStep {
   THREE = "THREE",
 }
 
+export enum ApplicationStatus {
+  DRAFT = "DRAFT",
+  SUBMITTED = "SUBMITTED",
+}
+
+export enum DocFolder {
+  other = "other",
+  bid = "bid",
+}
+
 export interface TenderDocumentInterface {
   document_id: string;
   title: string;

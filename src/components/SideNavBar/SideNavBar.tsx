@@ -3,10 +3,10 @@ import { IconType } from "react-icons";
 import { AiOutlineAppstoreAdd, AiOutlineDashboard } from "react-icons/ai";
 import { FaChalkboardTeacher, FaUserCircle } from "react-icons/fa";
 import { HiOutlineBriefcase } from "react-icons/hi";
-import { MdClose } from "react-icons/md";
+import { MdClose, MdOutlineAddReaction } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
-import { Auth } from "../../actions";
+import { Auth, UserType } from "../../actions";
 import { menus_categories, MENU_TYPE } from "../../config/AppNavigations";
 
 interface SideNavBarProps {
@@ -23,42 +23,63 @@ export class SideNavBar extends Component<SideNavBarProps, SideNavBarState> {
       title: string;
       path: string;
       icon: IconType;
+      userType: UserType | null;
     }[] = [
       {
         key: MENU_TYPE.PROFILE,
         title: "Profile",
         path: "/profile",
         icon: FaUserCircle,
+        userType: null,
       },
       {
         key: MENU_TYPE.PROFILE,
         title: "Change password",
         path: "/change-password",
         icon: RiLockPasswordLine,
+        userType: null,
       },
       {
         key: MENU_TYPE.ACTIVITIES,
         title: "Dashboard",
         path: "/dashboard",
         icon: AiOutlineDashboard,
+        userType: UserType.HOLDER,
       },
       {
         key: MENU_TYPE.ACTIVITIES,
         title: "Create tender",
         path: "/create-tender",
         icon: AiOutlineAppstoreAdd,
+        userType: UserType.HOLDER,
       },
       {
         key: MENU_TYPE.ACTIVITIES,
         title: "Tenders",
         path: "/tenders-list",
         icon: HiOutlineBriefcase,
+        userType: UserType.HOLDER,
       },
       {
         key: MENU_TYPE.ACTIVITIES,
         title: "Tender Applications",
         path: "/tender-applications",
         icon: FaChalkboardTeacher,
+        userType: UserType.HOLDER,
+      },
+      {
+        key: MENU_TYPE.ACTIVITIES,
+        title: "Tenders",
+        path: "/tenders",
+        icon: MdOutlineAddReaction,
+        userType: UserType.BIDER,
+      },
+      {
+        key: MENU_TYPE.ACTIVITIES,
+        title: "My Applications",
+        path: "/applications",
+        icon: HiOutlineBriefcase,
+        userType: UserType.BIDER,
       },
     ];
     const baseClass =
@@ -90,6 +111,12 @@ export class SideNavBar extends Component<SideNavBarProps, SideNavBarState> {
                 </div>
                 {menus
                   .filter((itm) => itm.key === item.key)
+                  .filter(
+                    (itm) =>
+                      (this.props.auth.user !== null &&
+                        this.props.auth.user.type === itm.userType) ||
+                      itm.userType === null
+                  )
                   .map((nav, i) => (
                     <NavLink
                       key={i + 1}

@@ -9,6 +9,7 @@ module.exports = {
           100: "#deedf9",
           200: "#bbdcda",
           700: "#009df6",
+          750: "#018fdf",
           800: "#007abf",
           900: "#006ca9",
           dark: "#03a9f4",
@@ -27,6 +28,7 @@ module.exports = {
       },
       backgroundImage: {
         "hero-pattern": "url('./assets/HomepageImage2.jpg')",
+        "home-pattern": "url('./assets/homeBG.png')",
       },
     },
   },

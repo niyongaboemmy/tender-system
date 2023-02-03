@@ -22,6 +22,9 @@ interface LoginProps {
     CallbackFunc: Function
   ) => void;
   FC_GetSystemInfo: (callback: (loading: boolean) => void) => void;
+  isComponent: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 interface LoginState {
   redirect: boolean;
@@ -88,26 +91,34 @@ class _Login extends Component<LoginProps, LoginState> {
                   this.props.system.basic_info !== null &&
                   this.setState({ redirect: true });
               });
+            this.props.onSuccess();
           }
         }
       );
     }
   };
   render() {
-    // if (this.state.redirect) {}
     return (
-      <div className="bg-white w-full md:w-3/5 lg:w-2/5 rounded-lg">
-        <div className="w-full p-3 px-5 md:py-8 md:px-8">
+      <div
+        className={`bg-white w-full ${
+          this.props.isComponent === true ? "" : "md:w-3/5 lg:w-2/5"
+        }  rounded-lg`}
+      >
+        <div
+          className={`w-full ${
+            this.props.isComponent === true ? "p-2" : "p-3 px-5 md:py-8 md:px-8"
+          }`}
+        >
           <div className="flex flex-row items-center gap-3 ">
             <div>
               <FaUserCircle className="text-3xl text-primary-800" />
             </div>
-            <div className="text-xl font-bold">Candidate Login</div>
+            <div className="text-xl font-bold">User Login</div>
           </div>
           <div className="mt-8 text-gray-700">
             <form onSubmit={this.LoginFn}>
               <div className="flex flex-col">
-                <div className="mb-1">Candidate code</div>
+                <div className="mb-1">Username</div>
                 <input
                   type="text"
                   className={`w-full ${
@@ -178,7 +189,15 @@ class _Login extends Component<LoginProps, LoginState> {
                   />
                 </div>
               )}
-              <div className="flex flex-row items-center justify-end mt-6">
+              <div className="flex flex-row items-center justify-end gap-2 mt-6">
+                {this.props.isComponent === true && (
+                  <div
+                    onClick={this.props.onClose}
+                    className="px-3 py-2 rounded cursor-pointer bg-gray-100 hover:bg-gray-500 hover:text-white font-bold"
+                  >
+                    Cancel
+                  </div>
+                )}
                 <button
                   className="flex flex-row items-center justify-center gap-2 p-2 pr-4 bg-primary-800 text-white hover:bg-primary-900 rounded"
                   type="submit"

@@ -64,7 +64,11 @@ class _Login extends Component<LoginProps, LoginState> {
           <Container>
             <div className="flex flex-col items-center justify-center mt-10 w-full">
               <div className="mt-8 w-full flex flex-row items-center justify-center">
-                <Login />
+                <Login
+                  isComponent={false}
+                  onClose={() => {}}
+                  onSuccess={() => {}}
+                />
               </div>
             </div>
           </Container>

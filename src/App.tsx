@@ -59,6 +59,13 @@ const CreateTender = lazy(() =>
     default: CreateTender,
   }))
 );
+const BidderApplications = lazy(() =>
+  import("./containers/BidderApplications/BidderApplications").then(
+    ({ BidderApplications }) => ({
+      default: BidderApplications,
+    })
+  )
+);
 
 //* Interfaces
 // props for the component
@@ -179,14 +186,38 @@ class _App extends React.Component<AppProps, AppState> {
                         exact
                       />
                     </Container>
-                    <ProtectedRoute
-                      path="/tenders-list"
-                      component={TendersList}
+                    <Container
                       isAuthenticated={this.props.auth.isAuthenticated}
-                      authenticationPath={authenticationPath}
-                      loading={this.state.loading}
-                      exact
-                    />
+                    >
+                      <ProtectedRoute
+                        path="/applications"
+                        component={BidderApplications}
+                        isAuthenticated={this.props.auth.isAuthenticated}
+                        authenticationPath={authenticationPath}
+                        loading={this.state.loading}
+                        exact
+                      />
+                      <ProtectedRoute
+                        path="/applications/:application_id/:tender_id"
+                        component={BidderApplications}
+                        isAuthenticated={this.props.auth.isAuthenticated}
+                        authenticationPath={authenticationPath}
+                        loading={this.state.loading}
+                        exact
+                      />
+                    </Container>
+                    <Container
+                      isAuthenticated={this.props.auth.isAuthenticated}
+                    >
+                      <ProtectedRoute
+                        path="/tenders-list"
+                        component={TendersList}
+                        isAuthenticated={this.props.auth.isAuthenticated}
+                        authenticationPath={authenticationPath}
+                        loading={this.state.loading}
+                        exact
+                      />
+                    </Container>
                     <Container
                       isAuthenticated={this.props.auth.isAuthenticated}
                     >

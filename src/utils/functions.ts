@@ -436,3 +436,15 @@ export const LeaveBrowser = (callBack: (status: boolean) => void) => {
     }
   });
 };
+export enum FileTypes {
+  PDF = "application/pdf",
+  JPEG = "image/jpeg",
+  GIF = "image/gif",
+  PNG = "image/png",
+  SVG = "image/svg+xml",
+  PPT = "application/vnd.ms-powerpoint",
+  PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  TIFF = "image/tiff",
+  IMAGES = "image/*",
+  EXCEL = ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel",
+}
