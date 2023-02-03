@@ -5,12 +5,13 @@ import { IoMdTime } from "react-icons/io";
 import { RiSearchLine } from "react-icons/ri";
 import { connect } from "react-redux";
 import { Link, RouteComponentProps } from "react-router-dom";
-import { Auth, System } from "../../actions";
+import { ApplicationStatus, Auth, System } from "../../actions";
 import {
   CompanyTenderApplicationInterface,
   FC_GetCompanyTenderApplications,
 } from "../../actions/tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
+import { BidderApplicationDetails } from "../../components/BidderApplicationDetails/BidderApplicationDetails";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import { StoreState } from "../../reducers";
 
@@ -44,11 +45,16 @@ class _BidderApplications extends Component<
       selectedApplication: null,
     };
   }
-  GetTenderApplications = () => {
+  GetTenderApplications = (
+    selectedApplication: CompanyTenderApplicationInterface | null
+  ) => {
     if (
       this.props.auth.user !== null &&
       this.props.auth.user.company.length > 0
     ) {
+      if (this.state.selectedApplication !== null) {
+        this.setState({ selectedApplication: null, applications: null });
+      }
       this.setState({ loading: true });
       FC_GetCompanyTenderApplications(
         this.props.auth.user.company[0].company_id,
@@ -67,6 +73,7 @@ class _BidderApplications extends Component<
               loading: false,
               error: "",
             });
+            // Check selected application in the params
             if (
               this.props.match.params.application_id !== undefined &&
               this.props.match.params.tender_id !== undefined
@@ -78,6 +85,14 @@ class _BidderApplications extends Component<
               if (application !== undefined) {
                 this.setState({ selectedApplication: application });
               }
+            }
+            // Go back to previous selected application
+            const selectedApply = res.data.find(
+              (itm) =>
+                itm.application_id === selectedApplication?.application_id
+            );
+            if (selectedApply !== undefined) {
+              this.setState({ selectedApplication: selectedApply });
             }
           }
           if (res?.type === "error") {
@@ -94,11 +109,29 @@ class _BidderApplications extends Component<
     }
   };
   componentDidMount = () => {
-    this.GetTenderApplications();
+    this.GetTenderApplications(this.state.selectedApplication);
   };
   render() {
     if (this.state.selectedApplication !== null) {
-      return <div>Alert</div>;
+      return (
+        <div>
+          <BidderApplicationDetails
+            application={this.state.selectedApplication}
+            system={this.props.system}
+            onBack={() => {
+              this.setState({ selectedApplication: null });
+              this.props.history.push("/applications");
+            }}
+            onSuccess={() => {
+              this.GetTenderApplications(this.state.selectedApplication);
+            }}
+            onRemoveApplication={() => {
+              this.setState({ selectedApplication: null });
+              this.GetTenderApplications(null);
+            }}
+          />
+        </div>
+      );
     }
     return (
       <Fragment>
@@ -161,7 +194,9 @@ class _BidderApplications extends Component<
                   <div>
                     {this.state.applications.map((item, i) => (
                       <div
-                        // onClick={() => this.setState({ selectedTender: item })}
+                        onClick={() =>
+                          this.setState({ selectedApplication: item })
+                        }
                         key={i + 1}
                         className="mb-3 w-full group cursor-pointer hover:text-primary-900"
                       >
@@ -174,7 +209,16 @@ class _BidderApplications extends Component<
                             </div>
                             <div className="w-full truncate">
                               <div className="text-base font-bold">
-                                {item.tender_name}
+                                {item.tender_name}{" "}
+                                {item.status === ApplicationStatus.DRAFT ? (
+                                  <span className="font-normal text-sm px-2 rounded-md bg-yellow-600 text-white truncate">
+                                    Draft, not saved
+                                  </span>
+                                ) : (
+                                  <span className="font-normal text-sm px-2 rounded-md bg-green-50 text-green-600">
+                                    Submitted
+                                  </span>
+                                )}
                               </div>
                               <div className="text-sm mb-2 w-full truncate text-gray-500">
                                 {item.details}
@@ -211,14 +255,25 @@ class _BidderApplications extends Component<
                             </div>
                           </div>
                           <div className=" pr-2">
-                            <div className="flex flex-row items-center justify-center gap-2 cursor-pointer bg-gray-100 group-hover:bg-primary-800 group-hover:text-white rounded-md px-2 py-2 pr-3">
-                              <div>
-                                <BsFolder2Open className="text-xl" />
+                            {item.status === ApplicationStatus.DRAFT ? (
+                              <div className="flex flex-row items-center justify-center gap-2 cursor-pointer bg-yellow-100 text-yellow-700 group-hover:bg-yellow-600 group-hover:text-white rounded-md px-2 py-2 pr-3">
+                                <div>
+                                  <BsFolder2Open className="text-xl" />
+                                </div>
+                                <span className="text-sm font-semibold truncate">
+                                  Draft, complete
+                                </span>
                               </div>
-                              <span className="text-sm font-semibold">
-                                Open
-                              </span>
-                            </div>
+                            ) : (
+                              <div className="flex flex-row items-center justify-center gap-2 cursor-pointer bg-gray-100 group-hover:bg-primary-800 group-hover:text-white rounded-md px-2 py-2 pr-3">
+                                <div>
+                                  <BsFolder2Open className="text-xl" />
+                                </div>
+                                <span className="text-sm font-semibold">
+                                  Open
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

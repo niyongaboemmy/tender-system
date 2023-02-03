@@ -1,11 +1,15 @@
 import React, { Component } from "react";
 import { BsFileEarmarkPdf } from "react-icons/bs";
 import { BooleanEnum, System } from "../../actions";
-import { GetTenderOfferInterface } from "../../actions/tender.action";
+import {
+  GetTenderOfferInterface,
+  RequiredDocumentInterface,
+} from "../../actions/tender.action";
 
 interface TenderDetailsProps {
   tender: GetTenderOfferInterface;
   system: System;
+  onSelectDocument: (document: RequiredDocumentInterface) => void;
 }
 interface TenderDetailsState {}
 
@@ -15,7 +19,7 @@ export class TenderDetails extends Component<
 > {
   render() {
     return (
-      <div>
+      <div className="">
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 md:col-span-12">
             <div className="flex flex-col text-sm">
@@ -75,6 +79,7 @@ export class TenderDetails extends Component<
                   <div
                     key={i + 1}
                     className="bg-gray-50 flex flex-row items-center gap-2 rounded-md p-2 mb-2"
+                    onClick={() => this.props.onSelectDocument(item)}
                   >
                     <div className="flex flex-row items-center gap-2 w-full">
                       <div>

@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from "react";
 import { BsFileMedicalFill } from "react-icons/bs";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { Auth, System } from "../../actions";
 import {
   FC_GetTendersOffers,
   GetTenderOfferInterface,
+  RequiredDocumentInterface,
 } from "../../actions/tender.action";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
@@ -21,6 +22,7 @@ interface TendersListState {
   tenders: GetTenderOfferInterface[] | null;
   error: string;
   selectedTender: GetTenderOfferInterface | null;
+  selectedDocument: RequiredDocumentInterface | null;
 }
 
 class _TendersList extends Component<TendersListProps, TendersListState> {
@@ -32,6 +34,7 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
       tenders: null,
       error: "",
       selectedTender: null,
+      selectedDocument: null,
     };
   }
   GetTenders = () => {
@@ -66,6 +69,16 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
     this.GetTenders();
   };
   render() {
+    if (
+      this.state.selectedDocument !== null &&
+      this.state.selectedTender !== null
+    ) {
+      return (
+        <Redirect
+          to={`/validate-application-document/${this.state.selectedTender.tender_id}/${this.state.selectedDocument.document_id}`}
+        />
+      );
+    }
     return (
       <Fragment>
         <div className="mx-0 md:mx-2">
@@ -164,6 +177,12 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
             <TenderDetails
               tender={this.state.selectedTender}
               system={this.props.system}
+              onSelectDocument={(document: RequiredDocumentInterface) => {
+                this.setState({
+                  selectedDocument: document,
+                  selectedTender: this.state.selectedTender,
+                });
+              }}
             />
           </Modal>
         )}

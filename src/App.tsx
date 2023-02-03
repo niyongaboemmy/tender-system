@@ -66,6 +66,13 @@ const BidderApplications = lazy(() =>
     })
   )
 );
+const ValidateApplicationDocument = lazy(() =>
+  import(
+    "./containers/ValidateApplicationDocument/ValidateApplicationDocument"
+  ).then(({ ValidateApplicationDocument }) => ({
+    default: ValidateApplicationDocument,
+  }))
+);
 
 //* Interfaces
 // props for the component
@@ -200,6 +207,14 @@ class _App extends React.Component<AppProps, AppState> {
                       <ProtectedRoute
                         path="/applications/:application_id/:tender_id"
                         component={BidderApplications}
+                        isAuthenticated={this.props.auth.isAuthenticated}
+                        authenticationPath={authenticationPath}
+                        loading={this.state.loading}
+                        exact
+                      />
+                      <ProtectedRoute
+                        path="/validate-application-document/:tender_id/:document_id"
+                        component={ValidateApplicationDocument}
                         isAuthenticated={this.props.auth.isAuthenticated}
                         authenticationPath={authenticationPath}
                         loading={this.state.loading}

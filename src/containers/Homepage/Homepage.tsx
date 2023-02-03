@@ -157,7 +157,11 @@ class _App extends Component<AppProps, AppState> {
             </div>
           )}
           <div className="min-h-screen">
-            <Container className="bg-primary-800">
+            <Container
+              className={`bg-primary-800 ${
+                this.state.selectedTender !== null ? "-mt-4 pb-4" : ""
+              }`}
+            >
               <div className="text-white pt-12 pb-3 bg-home-pattern">
                 <div
                   className={`flex flex-row items-center justify-between gap-3 mt-3 mb-6 ${
@@ -337,7 +341,7 @@ class _App extends Component<AppProps, AppState> {
                 )}
               </Container>
             ) : (
-              <Container className="py-5">
+              <Container className="py-5 -mt-12">
                 <PublicTenderDetails
                   tender={this.state.selectedTender}
                   system={this.props.system}

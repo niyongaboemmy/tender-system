@@ -32,7 +32,7 @@ export class PublicTenderDetails extends Component<
   }
   render() {
     return (
-      <div className="">
+      <div className="bg-white p-5 rounded-md">
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 md:col-span-12">
             <div className="flex flex-col text-sm">

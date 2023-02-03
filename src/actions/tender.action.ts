@@ -1,7 +1,9 @@
 import axios from "axios";
+import { StepItem } from "../components/Register/Steps";
 import { API_URL } from "../utils/api";
 import { errorToText } from "../utils/functions";
 import {
+  ApplicationStatus,
   BooleanEnum,
   DocumentValidationStep,
   TenderLevel,
@@ -69,11 +71,20 @@ export interface CompanyTenderApplicationInterface {
   published_date: string;
   closing_date: string;
   bid_document: string;
-  status: string;
+  status: ApplicationStatus;
   documents: {
     application_document_id: string;
     application_id: string;
     doc: string;
+    document_id: string;
+  }[];
+  required_document: {
+    title: string;
+    document_id: string;
+    opening_date: string;
+    required: BooleanEnum;
+    step: StepItem;
+    tender_id: string;
   }[];
 }
 
@@ -212,10 +223,97 @@ export const FC_GCreateTenderApplicationDraft = async (
     );
     console.log("Res: ", res.data);
     if (res) {
-      callBack(false, { type: "success", msg: "", data: res.data });
+      callBack(false, {
+        type: "success",
+        msg: "Created successfully",
+        data: res.data,
+      });
     }
   } catch (error: any) {
     console.log("Err: ", { ...error });
     callBack(false, { type: "error", msg: errorToText(error), data: null });
+  }
+};
+
+export const FC_SubmitRequiredDocument = async (
+  data: {
+    application_id: string;
+    required_document_id: string;
+    doc: File;
+  },
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  const formData = new FormData();
+  formData.append("application_id", data.application_id);
+  formData.append("required_document_id", data.required_document_id);
+  formData.append("doc", data.doc);
+  try {
+    const res = await axios.post(`${API_URL}/application/doc`, formData);
+    console.log("Res: ", res.data);
+    if (res) {
+      callBack(false, { type: "success", msg: "Submitted successfully!" });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error) });
+  }
+};
+
+export const FC_CancelApplication = async (
+  application_id: string,
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  try {
+    const res = await axios.delete(`${API_URL}/application/${application_id}`);
+    if (res) {
+      callBack(false, {
+        type: "success",
+        msg: "Application canceled successfully",
+      });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error) });
+  }
+};
+
+export const FC_SubmitApplication = async (
+  application_id: string,
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  try {
+    const res = await axios.post(`${API_URL}/application/submission`, {
+      application_id: application_id,
+    });
+    if (res) {
+      callBack(false, {
+        type: "success",
+        msg: "Application submitted successfully!",
+      });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error) });
   }
 };

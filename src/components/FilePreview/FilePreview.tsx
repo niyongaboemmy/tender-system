@@ -7,13 +7,14 @@ const FilePreview = (props: {
   selectedFile: File;
   onClose: () => void;
   isComponent: boolean;
+  className?: string;
 }) => {
   const { alt, src } = {
     src: URL.createObjectURL(props.selectedFile),
     alt: props.selectedFile.name,
   };
   return (
-    <div>
+    <div className={props.className === undefined ? "" : props.className}>
       {props.isComponent === false && (
         <div className="bg-white p-1 pl-3 flex flex-row items-center justify-between gap-2 w-full">
           <div className="font-bold text-accent-900 text-xl">File Preview</div>
@@ -30,7 +31,7 @@ const FilePreview = (props: {
       {props.selectedFile.type === FileTypes.PDF ? (
         <PdfViewer
           file_url={`${src}`}
-          class_name={"w-full h-100vh"}
+          class_name={"w-full h-screen"}
           frame_title={"User document"}
           setLoadingFile={(status: boolean) => {}}
           full_height={true}
