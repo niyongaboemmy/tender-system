@@ -13,6 +13,7 @@ import Alert, { AlertType } from "../../components/Alert/Alert";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
 import { StoreState } from "../../reducers";
+import { DateTimeToString } from "../../utils/functions";
 import { AddTenderDocument } from "./AddTenderDocument";
 import { SetDocumentsOpeningDate } from "./SetDocumentsOpeningDate";
 
@@ -596,12 +597,14 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
                                     <div className="text-gray-500">
                                       <div className="flex flex-row items-center gap-2 text-xs mt-1">
                                         <span>Opening date</span>
-                                        <span>{item.opening_date}</span>
+                                        <span>
+                                          {DateTimeToString(item.opening_date)}
+                                        </span>
                                       </div>
-                                      <div className="flex flex-row items-center gap-2 text-xs">
+                                      {/* <div className="flex flex-row items-center gap-2 text-xs">
                                         <span>Opening step</span>
                                         <span>{item.step}</span>
-                                      </div>
+                                      </div> */}
                                     </div>
                                   </div>
                                 </div>

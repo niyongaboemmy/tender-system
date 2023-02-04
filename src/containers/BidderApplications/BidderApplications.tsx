@@ -14,6 +14,7 @@ import Alert, { AlertType } from "../../components/Alert/Alert";
 import { BidderApplicationDetails } from "../../components/BidderApplicationDetails/BidderApplicationDetails";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import { StoreState } from "../../reducers";
+import { DateTimeToString } from "../../utils/functions";
 
 interface BidderApplicationsProps
   extends RouteComponentProps<{
@@ -230,9 +231,7 @@ class _BidderApplications extends Component<
                                       Publication date:
                                     </span>
                                     <span>
-                                      {new Date(
-                                        item.published_date
-                                      ).toUTCString()}
+                                      {DateTimeToString(item.published_date)}
                                     </span>
                                   </div>
                                 </div>
@@ -245,9 +244,7 @@ class _BidderApplications extends Component<
                                       <span>Deadline:</span>
                                     </div>
                                     <span>
-                                      {new Date(
-                                        item.closing_date
-                                      ).toUTCString()}
+                                      {DateTimeToString(item.closing_date)}
                                     </span>
                                   </div>
                                 </div>

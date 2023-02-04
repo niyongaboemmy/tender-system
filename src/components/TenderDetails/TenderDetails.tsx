@@ -6,6 +6,7 @@ import {
   RequiredDocumentInterface,
 } from "../../actions/tender.action";
 import { API_URL } from "../../utils/api";
+import { DateTimeToString } from "../../utils/functions";
 import PdfViewer from "../PdfViewer/PdfViewer";
 
 interface TenderDetailsProps {
@@ -53,17 +54,13 @@ export class TenderDetails extends Component<
           <div className="col-span-12 md:col-span-4 lg:col-span-3">
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Publication date</span>
-              <span>
-                {new Date(this.props.tender.published_date).toLocaleString()}
-              </span>
+              <span>{DateTimeToString(this.props.tender.published_date)}</span>
             </div>
           </div>
           <div className="col-span-12 md:col-span-4 lg:col-span-3">
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Closing date</span>
-              <span>
-                {new Date(this.props.tender.closing_date).toLocaleString()}
-              </span>
+              <span>{DateTimeToString(this.props.tender.closing_date)}</span>
             </div>
           </div>
           <div className="col-span-12">
@@ -146,12 +143,12 @@ export class TenderDetails extends Component<
                         <div className="text-gray-600">
                           <div className="flex flex-row items-center gap-2 text-xs mt-1">
                             <span>Opening date</span>
-                            <span>{item.opening_date}</span>
+                            <span>{DateTimeToString(item.opening_date)}</span>
                           </div>
-                          <div className="flex flex-row items-center gap-2 text-xs">
+                          {/* <div className="flex flex-row items-center gap-2 text-xs">
                             <span>Opening step</span>
                             <span>{item.step}</span>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </div>

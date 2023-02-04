@@ -13,7 +13,7 @@ import { BsArrowLeft, BsFileEarmarkPdf, BsFolder2Open } from "react-icons/bs";
 import { IoMdTime } from "react-icons/io";
 import PublicNav from "../../components/PublicNav/PublicNav";
 import { RiSearchLine } from "react-icons/ri";
-import { search } from "../../utils/functions";
+import { DateTimeToString, search } from "../../utils/functions";
 import { PublicTenderDetails } from "../../components/PublicTenderDetails/PublicTenderDetails";
 import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
 import { Login } from "../../components/Login/Login";
@@ -304,9 +304,7 @@ class _App extends Component<AppProps, AppState> {
                                       Publication date:
                                     </span>
                                     <span>
-                                      {new Date(
-                                        item.published_date
-                                      ).toUTCString()}
+                                      {DateTimeToString(item.published_date)}
                                     </span>
                                   </div>
                                 </div>
@@ -319,9 +317,7 @@ class _App extends Component<AppProps, AppState> {
                                       <span>Deadline:</span>
                                     </div>
                                     <span>
-                                      {new Date(
-                                        item.closing_date
-                                      ).toUTCString()}
+                                      {DateTimeToString(item.closing_date)}
                                     </span>
                                   </div>
                                 </div>

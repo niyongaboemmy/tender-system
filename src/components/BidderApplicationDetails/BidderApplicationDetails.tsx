@@ -10,6 +10,7 @@ import {
   FC_SubmitRequiredDocument,
 } from "../../actions/tender.action";
 import { API_URL } from "../../utils/api";
+import { DateTimeToString } from "../../utils/functions";
 import Alert, { AlertType } from "../Alert/Alert";
 import FilePreview from "../FilePreview/FilePreview";
 import Modal, { ModalSize, Themes } from "../Modal/Modal";
@@ -317,7 +318,7 @@ export class BidderApplicationDetails extends Component<
                         ) : (
                           <div className="text-xs text-gray-500 mt-1">
                             Validation date:{" "}
-                            {new Date(item.opening_date).toUTCString()}
+                            {DateTimeToString(item.opening_date)}
                           </div>
                         )}
                       </div>

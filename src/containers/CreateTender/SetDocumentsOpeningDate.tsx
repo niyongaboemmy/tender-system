@@ -1,16 +1,10 @@
 import React, { Component } from "react";
-import {
-  BsCheckCircle,
-  BsFileEarmarkPdf,
-  BsFileEarmarkPdfFill,
-} from "react-icons/bs";
-import {
-  HiOutlineArrowSmLeft,
-  HiOutlineDocumentDuplicate,
-} from "react-icons/hi";
+import { BsFileEarmarkPdf } from "react-icons/bs";
+import { HiOutlineArrowSmLeft } from "react-icons/hi";
 import { DocumentType, DocumentValidationStep } from "../../actions";
 import { RequiredDocumentInterface } from "../../actions/tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
+import { DateTimeToString } from "../../utils/functions";
 
 interface SetDocumentsOpeningDateProps {
   requiredDocuments: RequiredDocumentInterface[];
@@ -265,11 +259,10 @@ export class SetDocumentsOpeningDate extends Component<
                                 Not found!
                               </span>
                             ) : (
-                              new Date(
-                                this.GetDocumentTypeDateTime(
-                                  item.documentType
-                                )!.opening_date
-                              ).toUTCString()
+                              DateTimeToString(
+                                this.GetDocumentTypeDateTime(item.documentType)!
+                                  .opening_date
+                              )
                             )}
                           </div>
                         </div>

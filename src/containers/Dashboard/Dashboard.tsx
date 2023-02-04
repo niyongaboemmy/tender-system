@@ -79,7 +79,7 @@ export class _Dashboard extends Component<DashboardProps, DashboardState> {
               </Link>
               <Link
                 className="bg-primary-100 hover:border-primary-900 text-primary-900 hover:bg-primary-900 hover:text-white rounded px-3 py-2"
-                to={"/create-tender"}
+                to={"/tenders-list"}
               >
                 Tenders list
               </Link>

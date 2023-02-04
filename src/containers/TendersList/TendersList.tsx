@@ -12,6 +12,7 @@ import LoadingComponent from "../../components/Loading/LoadingComponent";
 import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
 import { TenderDetails } from "../../components/TenderDetails/TenderDetails";
 import { StoreState } from "../../reducers";
+import { DateTimeToString, search } from "../../utils/functions";
 
 interface TendersListProps {
   auth: Auth;
@@ -23,6 +24,7 @@ interface TendersListState {
   error: string;
   selectedTender: GetTenderOfferInterface | null;
   selectedDocument: RequiredDocumentInterface | null;
+  searchData: string;
 }
 
 class _TendersList extends Component<TendersListProps, TendersListState> {
@@ -35,6 +37,7 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
       error: "",
       selectedTender: null,
       selectedDocument: null,
+      searchData: "",
     };
   }
   GetTenders = () => {
@@ -111,8 +114,30 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
               <LoadingComponent />
             ) : (
               <div className="bg-white rounded-md">
+                <div className="p-3">
+                  <input
+                    type="search"
+                    className="bg-gray-100 w-full px-3 py-3 text-sm rounded-md"
+                    placeholder="Search by name"
+                    onChange={(e) =>
+                      this.setState({ searchData: e.target.value })
+                    }
+                    value={this.state.searchData}
+                  />
+                </div>
                 {this.state.tenders.length === 0 ? (
-                  <div>No tenders available</div>
+                  <div className="p-3 text-center w-full text-xl font-light">
+                    No tenders available
+                  </div>
+                ) : (
+                    search(
+                      this.state.tenders,
+                      this.state.searchData
+                    ) as GetTenderOfferInterface[]
+                  ).length === 0 ? (
+                  <div className="p-3 text-center w-full text-xl font-light">
+                    No result found!
+                  </div>
                 ) : (
                   <div>
                     <table className="w-full text-left text-sm">
@@ -127,7 +152,12 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
                         </tr>
                       </thead>
                       <tbody>
-                        {this.state.tenders.map((item, i) => (
+                        {(
+                          search(
+                            this.state.tenders,
+                            this.state.searchData
+                          ) as GetTenderOfferInterface[]
+                        ).map((item, i) => (
                           <tr
                             onClick={() =>
                               this.setState({ selectedTender: item })
@@ -144,10 +174,10 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
                             </td>
                             <td className="px-3 py-2 border">{item.level}</td>
                             <td className="px-3 py-2 border">
-                              {new Date(item.published_date).toLocaleString()}
+                              {DateTimeToString(item.published_date)}
                             </td>
                             <td className="px-3 py-2 border">
-                              {new Date(item.closing_date).toLocaleString()}
+                              {DateTimeToString(item.closing_date)}
                             </td>
                           </tr>
                         ))}

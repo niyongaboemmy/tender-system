@@ -448,3 +448,9 @@ export enum FileTypes {
   IMAGES = "image/*",
   EXCEL = ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel",
 }
+
+export const DateTimeToString = (date_time: string) => {
+  return `${new Date(date_time).toDateString()} ${new Date(
+    date_time
+  ).toLocaleTimeString()}`;
+};
