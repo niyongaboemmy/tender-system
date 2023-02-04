@@ -7,6 +7,7 @@ import {
 } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import { Auth, FC_GetSystemInfo, FC_Login, System } from "../../actions";
 import { StoreState } from "../../reducers";
 import Alert, { AlertType } from "../Alert/Alert";
@@ -189,39 +190,47 @@ class _Login extends Component<LoginProps, LoginState> {
                   />
                 </div>
               )}
-              <div className="flex flex-row items-center justify-end gap-2 mt-6">
-                {this.props.isComponent === true && (
-                  <div
-                    onClick={this.props.onClose}
-                    className="px-3 py-2 rounded cursor-pointer bg-gray-100 hover:bg-gray-500 hover:text-white font-bold"
-                  >
-                    Cancel
-                  </div>
-                )}
-                <button
-                  className="flex flex-row items-center justify-center gap-2 p-2 pr-4 bg-primary-800 text-white hover:bg-primary-900 rounded"
-                  type="submit"
-                  disabled={this.state.loading}
+              <div className="flex flex-row items-center justify-between gap-2 w-full mt-6">
+                <Link
+                  className="text-gray-500 hover:text-primary-900 hover:underline text-sm"
+                  to={"/register"}
                 >
-                  <div>
-                    {this.state.loading === true ? (
-                      <AiOutlineLoading3Quarters className="text-2xl animate-spin" />
-                    ) : (
-                      <AiOutlineLogin className="text-xl" />
-                    )}
-                  </div>
-                  <span
-                    className={`${
-                      this.state.loading === true
-                        ? "animate__animated animate__fadeIn animate__infinite"
-                        : ""
-                    }`}
+                  Register Account?
+                </Link>
+                <div className="flex flex-row items-center justify-end gap-2">
+                  {this.props.isComponent === true && (
+                    <div
+                      onClick={this.props.onClose}
+                      className="px-3 py-2 rounded cursor-pointer bg-gray-100 hover:bg-gray-500 hover:text-white font-bold"
+                    >
+                      Cancel
+                    </div>
+                  )}
+                  <button
+                    className="flex flex-row items-center justify-center gap-2 p-2 pr-4 bg-primary-800 text-white hover:bg-primary-900 rounded"
+                    type="submit"
+                    disabled={this.state.loading}
                   >
-                    {this.state.loading === true
-                      ? "Loading, please wait..."
-                      : "Login to continue"}
-                  </span>
-                </button>
+                    <div>
+                      {this.state.loading === true ? (
+                        <AiOutlineLoading3Quarters className="text-2xl animate-spin" />
+                      ) : (
+                        <AiOutlineLogin className="text-xl" />
+                      )}
+                    </div>
+                    <span
+                      className={`${
+                        this.state.loading === true
+                          ? "animate__animated animate__fadeIn animate__infinite"
+                          : ""
+                      }`}
+                    >
+                      {this.state.loading === true
+                        ? "Loading, please wait..."
+                        : "Login to continue"}
+                    </span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
