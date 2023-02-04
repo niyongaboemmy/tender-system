@@ -14,6 +14,7 @@ import LoadingComponent from "../../components/Loading/LoadingComponent";
 import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
 import { StoreState } from "../../reducers";
 import { AddTenderDocument } from "./AddTenderDocument";
+import { SetDocumentsOpeningDate } from "./SetDocumentsOpeningDate";
 
 interface CreateTenderProps {
   auth: Auth;
@@ -51,6 +52,7 @@ interface CreateTenderState {
   closing_date: string;
   closing_time: string;
   required_document: RequiredDocumentInterface[];
+  submitTender: boolean;
 }
 
 const InitialState: CreateTenderState = {
@@ -69,6 +71,7 @@ const InitialState: CreateTenderState = {
   success: "",
   error: null,
   selectDocument: false,
+  submitTender: false,
 };
 class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
   constructor(props: CreateTenderProps) {
@@ -89,18 +92,21 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
       companyId = this.props.auth.user.company[0].company_id;
       this.setState({ company_id: this.props.auth.user.company[0].company_id });
     }
-    // Validation data
-    if (this.state.category_id === "") {
-      return this.setState({
-        error: { type: "category_id", msg: "Please select tender category" },
-      });
+    if (this.state.company_id !== "") {
+      companyId = this.state.company_id;
     }
+    // Validation data
     if (companyId === "") {
       return this.setState({
         error: {
           type: "main",
           msg: "Tender provider is not found! Please contact the administrator",
         },
+      });
+    }
+    if (this.state.category_id === "") {
+      return this.setState({
+        error: { type: "category_id", msg: "Please select tender category" },
       });
     }
     if (this.state.tender_name === "") {
@@ -154,14 +160,18 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
         },
       });
     }
-    if (this.state.required_document.length <= 0) {
-      return this.setState({
-        error: {
-          type: "required_document",
-          msg: "Please select tender required documents",
-        },
-      });
+    // if (this.state.required_document.length <= 0) {
+    //   return this.setState({
+    //     error: {
+    //       type: "required_document",
+    //       msg: "Please select tender required documents",
+    //     },
+    //   });
+    // }
+    if (this.state.submitTender === false) {
+      return this.setState({ submitTender: true });
     }
+    this.setState({ submitTender: false });
     // Submit data
     this.setState({ loading: true });
     FC_CreateTender(
@@ -693,18 +703,57 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
             title={<div>Add new required bid document</div>}
           >
             <AddTenderDocument
-              documents={this.props.system.basic_info.document.filter(
+              documents={this.props.system.basic_info.document}
+              addedDocuments={this.props.system.basic_info.document.filter(
                 (itm) =>
                   this.state.required_document.find(
                     (item) => item.document_id === itm.document_id
-                  ) === undefined
+                  ) !== undefined
               )}
               addDocument={(data: RequiredDocumentInterface) => {
                 this.setState({
-                  required_document: [...this.state.required_document, data],
-                  selectDocument: false,
+                  required_document:
+                    this.state.required_document.find(
+                      (itm) => itm.document_id === data.document_id
+                    ) !== undefined
+                      ? this.state.required_document.filter(
+                          (itm) => itm.document_id !== data.document_id
+                        )
+                      : [
+                          ...this.state.required_document.filter(
+                            (itm) => itm.document_id !== data.document_id
+                          ),
+                          data,
+                        ],
                 });
               }}
+              onClose={() => this.setState({ selectDocument: false })}
+            />
+          </Modal>
+        )}
+        {this.state.submitTender === true && (
+          <Modal
+            backDrop={true}
+            theme={Themes.default}
+            close={() => {}}
+            backDropClose={true}
+            widthSizeClass={ModalSize.large}
+            displayClose={false}
+            padding={{
+              title: false,
+              body: true,
+              footer: undefined,
+            }}
+          >
+            <SetDocumentsOpeningDate
+              requiredDocuments={this.state.required_document}
+              setRequiredDocuments={(data: RequiredDocumentInterface[]) => {
+                this.setState({ required_document: data });
+              }}
+              onSubmitTender={(e: React.FormEvent<HTMLFormElement>) =>
+                this.SubmitTenderCreated(e)
+              }
+              onClose={() => this.setState({ submitTender: false })}
             />
           </Modal>
         )}

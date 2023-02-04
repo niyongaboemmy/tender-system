@@ -110,9 +110,7 @@ export class PublicTenderDetails extends Component<
                         <div className="text-gray-600">
                           <div className="flex flex-row items-center gap-2 text-xs mt-1">
                             <span>Opening date</span>
-                            <span>
-                              {new Date(item.opening_date).toLocaleString()}
-                            </span>
+                            <span>{item.opening_date}</span>
                           </div>
                           <div className="flex flex-row items-center gap-2 text-xs">
                             <span>Opening step</span>

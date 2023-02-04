@@ -1,36 +1,32 @@
 import React, { Component } from "react";
-import { BsArrowRight, BsCheckCircle, BsCheckSquareFill } from "react-icons/bs";
-import { ImRadioUnchecked } from "react-icons/im";
+import { BsCheckSquareFill } from "react-icons/bs";
+import { ImCheckboxUnchecked, ImRadioUnchecked } from "react-icons/im";
 import {
   BooleanEnum,
+  DocumentType,
   DocumentValidationStep,
   TenderDocumentInterface,
 } from "../../actions";
 import { RequiredDocumentInterface } from "../../actions/tender.action";
-import Alert, { AlertType } from "../../components/Alert/Alert";
-import SelectCustom from "../../components/SelectCustom/SelectCustom";
+import { search } from "../../utils/functions";
 
 interface AddTenderDocumentProps {
   documents: TenderDocumentInterface[];
+  addedDocuments: TenderDocumentInterface[];
   addDocument: (data: RequiredDocumentInterface) => void;
+  onClose: () => void;
 }
 interface AddTenderDocumentState {
   loading: boolean;
   openSelect: boolean;
-  selectedDocument: TenderDocumentInterface | null;
-  opening_date: string;
-  opening_time: string;
+  selectedDocument: TenderDocumentInterface[];
   step: DocumentValidationStep;
   required: BooleanEnum;
   error: {
-    type:
-      | "main"
-      | "opening_date"
-      | "opening_time"
-      | "step"
-      | "selectedDocument";
+    type: "main" | "step" | "selectedDocument";
     msg: string;
   } | null;
+  searchData: string;
 }
 
 export class AddTenderDocument extends Component<
@@ -43,185 +39,84 @@ export class AddTenderDocument extends Component<
     this.state = {
       loading: false,
       openSelect: false,
-      selectedDocument: null,
-      opening_date: "",
+      selectedDocument: [],
       step: DocumentValidationStep.ONE,
       required: BooleanEnum.TRUE,
-      opening_time: "",
       error: null,
+      searchData: "",
     };
   }
-  SendData = () => {
-    // Validation
-    if (this.state.selectedDocument === null) {
-      return this.setState({
-        error: { type: "selectedDocument", msg: "Select document" },
-      });
-    }
-    if (this.state.opening_date === "") {
-      return this.setState({
-        error: { type: "opening_date", msg: "Select opening date" },
-      });
-    }
-    if (this.state.opening_time === "") {
-      return this.setState({
-        error: { type: "opening_time", msg: "Select opening time" },
-      });
-    }
-    // submit
-    this.props.addDocument({
-      document_id: this.state.selectedDocument.document_id,
-      opening_date: `${this.state.opening_date} ${this.state.opening_time}`,
-      required: this.state.required,
-      step: this.state.step,
-    });
-  };
   render() {
     return (
-      <div className="">
-        <div className="-mt-4 border-t mb-4"></div>
-        <div>
-          <div className="text-sm mb-1">Document type</div>
-          <div
-            onClick={() => this.setState({ openSelect: true })}
-            className="flex flex-row items-center justify-between px-2 py-2 w-full bg-gray-100 cursor-pointer rounded mb-2 hover:bg-primary-50 hover:text-primary-900"
-          >
-            <div className="flex flex-row items-center gap-3">
-              {this.state.selectedDocument !== null && (
+      <div className="pb-6">
+        <div className="mb-4 -mt-5">
+          <input
+            type="search"
+            className="px-3 py-2 rounded-md bg-gray-100 w-full"
+            placeholder="Search by name"
+            value={this.state.searchData}
+            onChange={(e) => this.setState({ searchData: e.target.value })}
+          />
+        </div>
+        <div
+          className="overflow-y-auto"
+          style={{ height: "calc(100vh - 300px)" }}
+        >
+          {(
+            search(
+              this.props.documents,
+              this.state.searchData
+            ) as TenderDocumentInterface[]
+          ).length === 0 ? (
+            <div className="p-6 text-center w-full text-xl font-light bg-gray-100 rounded-lg">
+              No result found
+            </div>
+          ) : (
+            (
+              search(
+                this.props.documents,
+                this.state.searchData
+              ) as TenderDocumentInterface[]
+            ).map((item, i) => (
+              <div
+                key={i + 1}
+                onClick={() =>
+                  this.props.addDocument({
+                    document_id: item.document_id,
+                    opening_date: ``,
+                    required: this.state.required,
+                    step: this.state.step,
+                    document_type: item.type,
+                  })
+                }
+                className="flex flex-row items-center gap-3 cursor-pointer hover:text-primary-800 mb-2 border-b pb-2"
+              >
                 <div>
-                  <BsCheckCircle className="text-2xl" />
+                  {this.props.addedDocuments.find(
+                    (itm) => itm.document_id === item.document_id
+                  ) === undefined ? (
+                    <ImCheckboxUnchecked className="text-gray-500 text-2xl cursor-pointer" />
+                  ) : (
+                    <BsCheckSquareFill className="text-primary-800 text-2xl cursor-pointer" />
+                  )}
                 </div>
-              )}
-              <span>
-                {this.state.selectedDocument === null ? (
-                  <span className="font-bold">Select document type</span>
-                ) : (
-                  this.state.selectedDocument.title
-                )}
-              </span>
-            </div>
-            <div>
-              <BsArrowRight className="text-xl" />
-            </div>
-          </div>
-          {this.state.openSelect === true && (
-            <div>
-              <SelectCustom
-                loading={this.state.loading}
-                id={"document_id"}
-                title={"title"}
-                close={() => this.setState({ openSelect: false })}
-                data={this.props.documents}
-                click={(data: TenderDocumentInterface) => {
-                  const getDocument = this.props.documents.find(
-                    (itm) => itm.document_id === data.document_id
-                  );
-                  this.setState({
-                    selectedDocument:
-                      getDocument === undefined ? null : getDocument,
-                    openSelect: false,
-                  });
-                }}
-              />
-            </div>
-          )}
-          {this.state.error?.type === "selectedDocument" && (
-            <Alert
-              alertType={AlertType.DANGER}
-              title={this.state.error.msg}
-              close={() => this.setState({ error: null })}
-            />
+                <div className="flex flex-col">
+                  <div>{item.title}</div>
+                  <div className="text-xs text-gray-500">
+                    {item.type === DocumentType.ADMIN
+                      ? "Administrative"
+                      : item.type === DocumentType.TECHNICAL
+                      ? "Technical"
+                      : "Financial"}{" "}
+                    document
+                  </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
-        <div className="flex flex-col mt-4">
-          <div className="text-sm mb-1">Validation step</div>
-          <select
-            className={`px-3 py-2 rounded bg-gray-100 w-full ${
-              this.state.error?.type === "step" ? "border border-red-600" : ""
-            }`}
-            value={this.state.step}
-            onChange={(e) =>
-              this.setState({
-                step: e.target.value as DocumentValidationStep,
-                error: null,
-              })
-            }
-            disabled={this.state.loading}
-          >
-            <option value=""></option>
-            {[
-              DocumentValidationStep.ONE,
-              DocumentValidationStep.TWO,
-              DocumentValidationStep.THREE,
-            ].map((step, s) => (
-              <option key={s + 1} value={step}>
-                {step}
-              </option>
-            ))}
-          </select>
-          {this.state.error?.type === "step" && (
-            <Alert
-              alertType={AlertType.DANGER}
-              title={this.state.error.msg}
-              close={() => this.setState({ error: null })}
-            />
-          )}
-        </div>
-        <div className="flex flex-row items-center justify-center gap-4 w-full">
-          <div className="flex flex-col mt-4 w-full">
-            <div className="text-sm mb-1">Document opening date</div>
-            <input
-              type={"date"}
-              className={`px-3 py-2 rounded bg-gray-100 w-full ${
-                this.state.error?.type === "opening_date"
-                  ? "border border-red-600"
-                  : ""
-              }`}
-              value={this.state.opening_date}
-              onChange={(e) =>
-                this.setState({
-                  opening_date: e.target.value,
-                  error: null,
-                })
-              }
-              disabled={this.state.loading}
-            />
-            {this.state.error?.type === "opening_date" && (
-              <Alert
-                alertType={AlertType.DANGER}
-                title={this.state.error.msg}
-                close={() => this.setState({ error: null })}
-              />
-            )}
-          </div>
-          <div className="flex flex-col mt-4 w-full">
-            <div className="text-sm mb-1">Document opening time</div>
-            <input
-              type={"time"}
-              className={`px-3 py-2 rounded bg-gray-100 w-full ${
-                this.state.error?.type === "opening_time"
-                  ? "border border-red-600"
-                  : ""
-              }`}
-              value={this.state.opening_time}
-              onChange={(e) =>
-                this.setState({
-                  opening_time: e.target.value,
-                  error: null,
-                })
-              }
-              disabled={this.state.loading}
-            />
-            {this.state.error?.type === "opening_time" && (
-              <Alert
-                alertType={AlertType.DANGER}
-                title={this.state.error.msg}
-                close={() => this.setState({ error: null })}
-              />
-            )}
-          </div>
-        </div>
-        <div className="w-full border-t mt-6"></div>
+
+        <div className="w-full mt-6"></div>
         <div className="mt-4 flex flex-row items-center justify-between">
           <div
             onClick={() =>
@@ -236,9 +131,9 @@ export class AddTenderDocument extends Component<
           >
             <div>
               {this.state.required === BooleanEnum.TRUE ? (
-                <BsCheckSquareFill className="text-primary-800 text-2xl" />
+                <BsCheckSquareFill className="text-green-600 text-2xl" />
               ) : (
-                <ImRadioUnchecked className="text-2xl" />
+                <ImRadioUnchecked className="text-2xl text-yellow-500" />
               )}
             </div>
             <div>
@@ -248,10 +143,10 @@ export class AddTenderDocument extends Component<
             </div>
           </div>
           <div
-            onClick={() => this.SendData()}
-            className="bg-primary-800 hover:bg-primary-900 text-white px-3 py-2 rounded cursor-pointer"
+            onClick={this.props.onClose}
+            className=" bg-primary-800 hover:bg-primary-900 text-white px-3 py-2 rounded cursor-pointer"
           >
-            Add document requirement
+            Yes, Completed
           </div>
         </div>
       </div>

@@ -1,22 +1,33 @@
 import React, { Component } from "react";
 import { BsFileEarmarkPdf } from "react-icons/bs";
-import { BooleanEnum, System } from "../../actions";
+import { BooleanEnum, DocFolder, System } from "../../actions";
 import {
   GetTenderOfferInterface,
   RequiredDocumentInterface,
 } from "../../actions/tender.action";
+import { API_URL } from "../../utils/api";
+import PdfViewer from "../PdfViewer/PdfViewer";
 
 interface TenderDetailsProps {
   tender: GetTenderOfferInterface;
   system: System;
   onSelectDocument: (document: RequiredDocumentInterface) => void;
 }
-interface TenderDetailsState {}
+interface TenderDetailsState {
+  viewDocument: boolean;
+}
 
 export class TenderDetails extends Component<
   TenderDetailsProps,
   TenderDetailsState
 > {
+  constructor(props: TenderDetailsProps) {
+    super(props);
+
+    this.state = {
+      viewDocument: false,
+    };
+  }
   render() {
     return (
       <div className="">
@@ -62,11 +73,41 @@ export class TenderDetails extends Component<
             </div>
           </div>
           <div className="col-span-12">
-            <span className="text-sm text-gray-800 font-bold">
-              Bid document
-            </span>
+            <div className="flex flex-row items-center justify-between gap-2">
+              <span className="text-sm text-gray-800 font-bold">
+                Bid document
+              </span>
+              {this.state.viewDocument === true && (
+                <div>
+                  <div
+                    onClick={() => this.setState({ viewDocument: false })}
+                    className="px-3 py-2 rounded-md border border-primary-700 hover:border-white bg-primary-50 text-primary-900 w-max text-sm font-bold hover:bg-primary-800 hover:text-white cursor-pointer"
+                  >
+                    Hide document
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="mt-2">
-              <div className="w-full h-64 bg-gray-600 rounded-md"></div>
+              <div className="w-full h-full bg-gray-500 rounded-md flex items-center justify-center">
+                {this.state.viewDocument === true ? (
+                  <PdfViewer
+                    file_url={`${API_URL}/docs/${DocFolder.bid}/${this.props.tender.bid_document}`}
+                    class_name={"w-full h-screen rounded-md"}
+                    frame_title={""}
+                    setLoadingFile={(state: boolean) => {}}
+                  />
+                ) : (
+                  <div className="p-6">
+                    <div
+                      onClick={() => this.setState({ viewDocument: true })}
+                      className="px-3 py-2 rounded-md border border-white bg-primary-800 w-max text-sm font-bold hover:bg-primary-900 text-white cursor-pointer"
+                    >
+                      View document
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="col-span-12">
@@ -78,7 +119,7 @@ export class TenderDetails extends Component<
                 {this.props.tender.documents.map((item, i) => (
                   <div
                     key={i + 1}
-                    className="bg-gray-50 flex flex-row items-center gap-2 rounded-md p-2 mb-2"
+                    className="bg-gray-50 flex flex-row items-center gap-2 rounded-md p-2 mb-2 cursor-pointer hover:bg-primary-50 hover:text-primary-900 group"
                     onClick={() => this.props.onSelectDocument(item)}
                   >
                     <div className="flex flex-row items-center gap-2 w-full">
@@ -105,9 +146,7 @@ export class TenderDetails extends Component<
                         <div className="text-gray-600">
                           <div className="flex flex-row items-center gap-2 text-xs mt-1">
                             <span>Opening date</span>
-                            <span>
-                              {new Date(item.opening_date).toLocaleString()}
-                            </span>
+                            <span>{item.opening_date}</span>
                           </div>
                           <div className="flex flex-row items-center gap-2 text-xs">
                             <span>Opening step</span>
@@ -116,7 +155,11 @@ export class TenderDetails extends Component<
                         </div>
                       </div>
                     </div>
-                    <div>{/*  */}</div>
+                    <div>
+                      <div className="px-3 py-2 rounded-md bg-white w-max text-sm font-bold group-hover:bg-primary-800 group-hover:text-white cursor-pointer">
+                        Validate
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

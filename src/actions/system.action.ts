@@ -41,6 +41,16 @@ export enum DocFolder {
   bid = "bid",
 }
 
+export enum ApplicationDecisionEnum {
+  PASS = "PASS",
+  FAIL = "FAIL",
+}
+
+export enum ApplicationDocIsCorrect {
+  VALID = "VALID",
+  INVALID = "INVALID",
+}
+
 export interface TenderDocumentInterface {
   document_id: string;
   title: string;

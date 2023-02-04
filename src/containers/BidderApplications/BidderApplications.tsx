@@ -135,7 +135,7 @@ class _BidderApplications extends Component<
     }
     return (
       <Fragment>
-        <div className="mx-0 md:mx-2 -mt-2">
+        <div className="mx-0 md:mx-2 mt-2">
           <div>
             <div className="flex flex-row items-center justify-between gap-2 w-full mb-3">
               <div className="flex flex-row items-center gap-3">

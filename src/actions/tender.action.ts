@@ -5,6 +5,7 @@ import { errorToText } from "../utils/functions";
 import {
   ApplicationStatus,
   BooleanEnum,
+  DocumentType,
   DocumentValidationStep,
   TenderLevel,
 } from "./system.action";
@@ -14,6 +15,7 @@ export interface RequiredDocumentInterface {
   opening_date: string;
   step: DocumentValidationStep;
   required: BooleanEnum;
+  document_type: DocumentType;
 }
 
 export interface CreateTenderDataInterface {
@@ -73,7 +75,7 @@ export interface CompanyTenderApplicationInterface {
   bid_document: string;
   status: ApplicationStatus;
   documents: {
-    application_document_id: string;
+    // application_document_id: string;
     application_id: string;
     doc: string;
     document_id: string;

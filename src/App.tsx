@@ -192,10 +192,6 @@ class _App extends React.Component<AppProps, AppState> {
                         loading={this.state.loading}
                         exact
                       />
-                    </Container>
-                    <Container
-                      isAuthenticated={this.props.auth.isAuthenticated}
-                    >
                       <ProtectedRoute
                         path="/applications"
                         component={BidderApplications}
@@ -220,10 +216,6 @@ class _App extends React.Component<AppProps, AppState> {
                         loading={this.state.loading}
                         exact
                       />
-                    </Container>
-                    <Container
-                      isAuthenticated={this.props.auth.isAuthenticated}
-                    >
                       <ProtectedRoute
                         path="/tenders-list"
                         component={TendersList}
@@ -232,10 +224,6 @@ class _App extends React.Component<AppProps, AppState> {
                         loading={this.state.loading}
                         exact
                       />
-                    </Container>
-                    <Container
-                      isAuthenticated={this.props.auth.isAuthenticated}
-                    >
                       <ProtectedRoute
                         path="/create-tender"
                         component={CreateTender}

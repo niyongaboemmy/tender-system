@@ -225,7 +225,11 @@ class _App extends Component<AppProps, AppState> {
                   </div>
                 )}
                 {this.state.error !== "" && (
-                  <div>
+                  <div
+                    className={
+                      this.state.selectedTender === null ? "" : "-mt-16 mb-2"
+                    }
+                  >
                     <Alert
                       alertType={AlertType.DANGER}
                       title={this.state.error}
