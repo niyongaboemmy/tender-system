@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../utils/api";
+import { setAxiosToken } from "../utils/AxiosToken";
 import { errorToText } from "../utils/functions";
 import {
   ApplicationDecisionEnum,
@@ -83,6 +84,7 @@ export const FC_GetTenderApplicationsToBeValidated = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.get<TenderApplicationsListInterface>(
       `${API_URL}/application/remain/${required_document_id}/${tender_id}`
@@ -111,6 +113,7 @@ export const FC_AddTenderApplicationFinancialAmount = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.patch(`${API_URL}/application/remain`, data);
     console.log("Res: ", res);
@@ -137,6 +140,7 @@ export const FC_SaveApplicationDecision = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.patch(`${API_URL}/application/decision`, data);
     console.log("Res: ", res);
@@ -164,6 +168,7 @@ export const FC_UpdateDocumentDecision = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.patch(`${API_URL}/application/validation`, data);
     console.log("Res: ", res);

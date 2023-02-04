@@ -1,6 +1,7 @@
 import axios from "axios";
 import { StepItem } from "../components/Register/Steps";
 import { API_URL } from "../utils/api";
+import { setAxiosToken } from "../utils/AxiosToken";
 import { errorToText } from "../utils/functions";
 import {
   ApplicationStatus,
@@ -98,6 +99,7 @@ export const FC_CreateTender = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const formData = new FormData();
     formData.append("category_id", data.category_id);
@@ -136,6 +138,7 @@ export const FC_GetTendersOffers = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.get<GetTenderOfferInterface[]>(
       `${API_URL}/tender/offers/company/${company_id}`
@@ -185,6 +188,7 @@ export const FC_GetCompanyTenderApplications = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.get<CompanyTenderApplicationInterface[]>(
       `${API_URL}/application/company/${company_id}`
@@ -215,6 +219,7 @@ export const FC_GCreateTenderApplicationDraft = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.post<{ application_id: string; message: string }>(
       `${API_URL}/application`,
@@ -252,6 +257,7 @@ export const FC_SubmitRequiredDocument = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   const formData = new FormData();
   formData.append("application_id", data.application_id);
   formData.append("required_document_id", data.required_document_id);
@@ -279,6 +285,7 @@ export const FC_CancelApplication = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.delete(`${API_URL}/application/${application_id}`);
     if (res) {
@@ -304,6 +311,7 @@ export const FC_SubmitApplication = async (
   ) => void
 ) => {
   callBack(true, null);
+  setAxiosToken();
   try {
     const res = await axios.post(`${API_URL}/application/submission`, {
       application_id: application_id,
