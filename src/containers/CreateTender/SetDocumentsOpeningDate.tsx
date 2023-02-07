@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { BsFileEarmarkPdf } from "react-icons/bs";
 import { HiOutlineArrowSmLeft } from "react-icons/hi";
-import { DocumentType, DocumentValidationStep } from "../../actions";
+import {
+  DocumentType,
+  DocumentValidationStep,
+  TenderVisibility,
+} from "../../actions";
 import { RequiredDocumentInterface } from "../../actions/tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
 import { DateTimeToString } from "../../utils/functions";
@@ -11,6 +15,8 @@ interface SetDocumentsOpeningDateProps {
   setRequiredDocuments: (data: RequiredDocumentInterface[]) => void; //The output
   onSubmitTender: (e: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
+  tenderVisibility: TenderVisibility;
+  setTenderVisibility: (visibility: TenderVisibility) => void;
 }
 interface EditDocumentOpeningDate {
   document_type: DocumentType;
@@ -300,6 +306,25 @@ export class SetDocumentsOpeningDate extends Component<
                           </div>
                         </div>
                       ) : (
+                        this.state.editDocument === null && (
+                          <div
+                            onClick={() =>
+                              this.setState({
+                                editDocument: {
+                                  document_type: item.documentType,
+                                  opening_date: "",
+                                  opening_time: "",
+                                },
+                              })
+                            }
+                            className="bg-white text-primary-900 font-semibold hover:bg-primary-900 hover:text-white px-3 py-2 rounded-md cursor-pointer w-max text-sm border border-primary-700 hover:border-white"
+                          >
+                            Add date and time
+                          </div>
+                        )
+                      )
+                    ) : (
+                      this.state.editDocument === null && (
                         <div
                           onClick={() =>
                             this.setState({
@@ -312,24 +337,9 @@ export class SetDocumentsOpeningDate extends Component<
                           }
                           className="bg-white text-primary-900 font-semibold hover:bg-primary-900 hover:text-white px-3 py-2 rounded-md cursor-pointer w-max text-sm border border-primary-700 hover:border-white"
                         >
-                          Add date and time
+                          Update
                         </div>
                       )
-                    ) : (
-                      <div
-                        onClick={() =>
-                          this.setState({
-                            editDocument: {
-                              document_type: item.documentType,
-                              opening_date: "",
-                              opening_time: "",
-                            },
-                          })
-                        }
-                        className="bg-white text-primary-900 font-semibold hover:bg-primary-900 hover:text-white px-3 py-2 rounded-md cursor-pointer w-max text-sm border border-primary-700 hover:border-white"
-                      >
-                        Update
-                      </div>
                     )}
                   </div>
                 </div>
@@ -345,6 +355,25 @@ export class SetDocumentsOpeningDate extends Component<
               </div>
             )}
             {DocumentCategories.length > 0 && (
+              <div className="flex flex-col w-full bg-gray-100 p-3 my-3">
+                <div className="text-sm font-bold mb-1">
+                  Choose tender visibility
+                </div>
+                <select
+                  value={this.props.tenderVisibility}
+                  onChange={(e) =>
+                    this.props.setTenderVisibility(
+                      e.target.value as TenderVisibility
+                    )
+                  }
+                  className="border-2 border-yellow-600 w-full px-4 py-3 font-bold text-black rounded-md"
+                >
+                  <option value={TenderVisibility.PUBLIC}>To the Public</option>
+                  <option value={TenderVisibility.PRIVATE}>Private</option>
+                </select>
+              </div>
+            )}
+            {DocumentCategories.length > 0 && (
               <div className="mt-3 flex flex-row items-center justify-end gap-2 text-sm">
                 <div
                   onClick={this.props.onClose}
@@ -356,7 +385,7 @@ export class SetDocumentsOpeningDate extends Component<
                   type="submit"
                   className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md cursor-pointer w-max font-bold"
                 >
-                  Submit application
+                  Submit tender
                 </button>
               </div>
             )}

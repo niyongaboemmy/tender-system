@@ -8,6 +8,7 @@ import {
   System,
   FC_SetError,
   FC_SetShowNavigationStatus,
+  UserType,
 } from "./actions";
 import { StoreState } from "./reducers";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -48,6 +49,12 @@ const Dashboard = lazy(() =>
   }))
 );
 
+const Profile = lazy(() =>
+  import("./containers/Profile/Profile").then(({ Profile }) => ({
+    default: Profile,
+  }))
+);
+
 const TendersList = lazy(() =>
   import("./containers/TendersList/TendersList").then(({ TendersList }) => ({
     default: TendersList,
@@ -72,6 +79,30 @@ const ValidateApplicationDocument = lazy(() =>
   ).then(({ ValidateApplicationDocument }) => ({
     default: ValidateApplicationDocument,
   }))
+);
+
+const ChangePassword = lazy(() =>
+  import("./containers/ChangePassword/ChangePassword").then(
+    ({ ChangePassword }) => ({
+      default: ChangePassword,
+    })
+  )
+);
+
+const TenderDocumentsValidation = lazy(() =>
+  import(
+    "./containers/TenderDocumentsValidation/TenderDocumentsValidation"
+  ).then(({ TenderDocumentsValidation }) => ({
+    default: TenderDocumentsValidation,
+  }))
+);
+
+const TenderSubmissions = lazy(() =>
+  import("./containers/TenderSubmissions/TenderSubmissions").then(
+    ({ TenderSubmissions }) => ({
+      default: TenderSubmissions,
+    })
+  )
 );
 
 //* Interfaces
@@ -192,41 +223,107 @@ class _App extends React.Component<AppProps, AppState> {
                         loading={this.state.loading}
                         exact
                       />
+                      {this.props.auth.user?.type === UserType.BIDER && (
+                        <ProtectedRoute
+                          path="/applications"
+                          component={BidderApplications}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.BIDER && (
+                        <ProtectedRoute
+                          path="/applications/:application_id/:tender_id"
+                          component={BidderApplications}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/validate-application-document/:tender_id/:document_id"
+                          component={ValidateApplicationDocument}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/tenders-list"
+                          component={TendersList}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/create-tender"
+                          component={CreateTender}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/tender-docs-validation"
+                          component={TenderDocumentsValidation}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/tender-docs-validation/:tender_id"
+                          component={TenderDocumentsValidation}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/tender-submissions-validation"
+                          component={TenderSubmissions}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/tender-submissions-validation/:tender_id"
+                          component={TenderSubmissions}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
                       <ProtectedRoute
-                        path="/applications"
-                        component={BidderApplications}
+                        path="/change-password"
+                        component={ChangePassword}
                         isAuthenticated={this.props.auth.isAuthenticated}
                         authenticationPath={authenticationPath}
                         loading={this.state.loading}
                         exact
                       />
                       <ProtectedRoute
-                        path="/applications/:application_id/:tender_id"
-                        component={BidderApplications}
-                        isAuthenticated={this.props.auth.isAuthenticated}
-                        authenticationPath={authenticationPath}
-                        loading={this.state.loading}
-                        exact
-                      />
-                      <ProtectedRoute
-                        path="/validate-application-document/:tender_id/:document_id"
-                        component={ValidateApplicationDocument}
-                        isAuthenticated={this.props.auth.isAuthenticated}
-                        authenticationPath={authenticationPath}
-                        loading={this.state.loading}
-                        exact
-                      />
-                      <ProtectedRoute
-                        path="/tenders-list"
-                        component={TendersList}
-                        isAuthenticated={this.props.auth.isAuthenticated}
-                        authenticationPath={authenticationPath}
-                        loading={this.state.loading}
-                        exact
-                      />
-                      <ProtectedRoute
-                        path="/create-tender"
-                        component={CreateTender}
+                        path="/profile"
+                        component={Profile}
                         isAuthenticated={this.props.auth.isAuthenticated}
                         authenticationPath={authenticationPath}
                         loading={this.state.loading}

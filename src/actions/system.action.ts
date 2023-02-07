@@ -51,6 +51,15 @@ export enum ApplicationDocIsCorrect {
   INVALID = "INVALID",
 }
 
+export enum UserAllowedTender {
+  PUBLIC = "PUBLIC",
+  PRIVATE = "PRIVATE",
+}
+export enum TenderVisibility {
+  PUBLIC = "PUBLIC",
+  PRIVATE = "PRIVATE",
+}
+
 export interface TenderDocumentInterface {
   document_id: string;
   title: string;

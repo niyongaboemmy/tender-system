@@ -26,6 +26,7 @@ export enum ModalSize {
   medium = "max-w-screen-sm",
   large = "max-w-screen-md",
   extraLarge = "max-w-screen-lg",
+  extraExtraLarge = "max-w-screen-xl",
   maxWidth = "max-w-screen h-full",
 }
 

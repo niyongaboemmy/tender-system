@@ -4,7 +4,7 @@ import { ActionTypes } from "./types";
 import { API_URL } from "../utils/api";
 import { APP_TOKEN_NAME, setAxiosToken } from "../utils/AxiosToken";
 import { errorToText } from "../utils/functions";
-import { UserType } from "./system.action";
+import { TenderVisibility, UserType } from "./system.action";
 
 /**
  * * ****************************** INTERFACES *****************************
@@ -27,6 +27,7 @@ export interface API_GetUsersDetails {
   user_phone: string;
   type: UserType;
   company: UserCompany[];
+  allowed_tender: TenderVisibility;
 }
 
 export interface RegisterDataInterface {
@@ -171,7 +172,7 @@ export const FC_ReloadUserInfo = (callBack: (status: boolean) => void) => {
     try {
       setAxiosToken();
       const res = await axios.get<API_GetUsersDetails>(
-        `${API_URL}/user/current`
+        `${API_URL}/user/logged`
       );
       console.log({ logged_user_details: res.data });
       dispatch<LoginSuccessDetails>({
@@ -336,5 +337,72 @@ export const FC_RegisterAccount = async (
       type: "error",
       msg: errorToText(error),
     });
+  }
+};
+
+export const FC_UpdatePersonalInfo = async (
+  data: {
+    user_id: string;
+    names: string;
+    user_email: string;
+    user_phone: string;
+  },
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.patch(`${API_URL}/user/modify`, data);
+    console.log("Res: ", res);
+    if (res) {
+      callBack(false, {
+        type: "success",
+        msg: "Profile updated successfully!",
+      });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error) });
+  }
+};
+
+export const FC_UpdateUserCompanyDetails = async (
+  data: {
+    company_id: string;
+    user_id: string;
+    compony_name: string;
+    country: string;
+    company_email: string;
+    company_phone: string;
+    tin_number: string;
+  },
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.patch(`${API_URL}/company`, data);
+    console.log("Res: ", res);
+    if (res) {
+      callBack(false, {
+        type: "success",
+        msg: "Profile updated successfully!",
+      });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error) });
   }
 };

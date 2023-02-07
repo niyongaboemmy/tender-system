@@ -38,31 +38,39 @@ export class PublicTenderDetails extends Component<
           <div className="col-span-12 md:col-span-12">
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Tender title</span>
-              <span>{this.props.tender.tender_name}</span>
+              <span className="font-semibold">
+                {this.props.tender.tender_name}
+              </span>
             </div>
           </div>
           <div className="col-span-12 md:col-span-4 lg:col-span-3">
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Tender category</span>
-              <span>{this.props.tender.category}</span>
+              <span className="font-semibold">
+                {this.props.tender.category}
+              </span>
             </div>
           </div>
           <div className="col-span-12 md:col-span-4 lg:col-span-3">
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Tender level</span>
-              <span>{this.props.tender.level}</span>
+              <span className="font-semibold">{this.props.tender.level}</span>
             </div>
           </div>
           <div className="col-span-12 md:col-span-4 lg:col-span-3">
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Publication date</span>
-              <span>{DateTimeToString(this.props.tender.published_date)}</span>
+              <span className="font-semibold">
+                {DateTimeToString(this.props.tender.published_date)}
+              </span>
             </div>
           </div>
           <div className="col-span-12 md:col-span-4 lg:col-span-3">
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Closing date</span>
-              <span>{DateTimeToString(this.props.tender.closing_date)}</span>
+              <span className="font-semibold">
+                {DateTimeToString(this.props.tender.closing_date)}
+              </span>
             </div>
           </div>
           <div className="col-span-12">
@@ -106,7 +114,7 @@ export class PublicTenderDetails extends Component<
                         </div>
                         <div className="text-gray-600">
                           <div className="flex flex-row items-center gap-2 text-xs mt-1">
-                            <span>Opening date</span>
+                            <span>Opening date & date</span>
                             <span>{DateTimeToString(item.opening_date)}</span>
                           </div>
                           {/* <div className="flex flex-row items-center gap-2 text-xs">
@@ -125,7 +133,7 @@ export class PublicTenderDetails extends Component<
           <div className="col-span-12">
             <div className="flex flex-row items-center justify-between">
               <span className="text-sm text-gray-800 font-bold">
-                Bid document
+                Tender notice (DAO)
               </span>
               {this.state.viewDocument === true && (
                 <div
@@ -146,7 +154,9 @@ export class PublicTenderDetails extends Component<
                     <div>
                       <BsFileEarmarkPdf className="text-xl" />
                     </div>
-                    <span>Open document</span>
+                    <span className="font-semibold">
+                      Open Tender notice (DAO)
+                    </span>
                   </div>
                 </div>
               ) : (
@@ -157,7 +167,7 @@ export class PublicTenderDetails extends Component<
                     <PdfViewer
                       file_url={`${API_URL}/docs/${DocFolder.bid}/${this.props.tender.bid_document}`}
                       class_name={"w-full rounded-md h-screen"}
-                      frame_title={"Bid Document"}
+                      frame_title={"Tender notice (DAO)"}
                       setLoadingFile={(state: boolean) =>
                         this.setState({ loading: state })
                       }
@@ -192,7 +202,7 @@ export class PublicTenderDetails extends Component<
           <div>
             <IoIosSend className="text-xl" />
           </div>
-          <span>Apply now</span>
+          <span className="font-bold">Apply now</span>
         </div>
       </div>
     );

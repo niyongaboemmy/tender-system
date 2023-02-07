@@ -89,12 +89,17 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
                               <FaUserCircle className="text-8xl" />
                             </div>
                           </div>
-                          <div className="font-bold text-center text-sm text-gray-400">
-                            <span>Username</span>
+                          <div className="font-light mt-3 text-center text-base text-gray-500 w-full">
+                            <span>{this.props.auth.user?.names}</span>
                           </div>
-                          <div className="font-bold text-center mb-2 text-primary-800">
-                            <span>({this.props.auth.user?.user_phone})</span>
-                          </div>
+                          {this.props.auth.user !== null &&
+                            this.props.auth.user.company.length > 0 && (
+                              <div className="font-bold text-sm text-center pb-2 text-black w-full">
+                                <span>
+                                  {this.props.auth.user.company[0].compony_name}
+                                </span>
+                              </div>
+                            )}
                         </div>
 
                         <div className="mt-5">

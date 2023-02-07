@@ -4,16 +4,23 @@ import { BsFileEarmarkPdf, BsFileMedicalFill } from "react-icons/bs";
 import { MdOutlineClose } from "react-icons/md";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { Auth, BooleanEnum, System, TenderLevel } from "../../actions";
+import {
+  Auth,
+  BooleanEnum,
+  System,
+  TenderLevel,
+  TenderVisibility,
+} from "../../actions";
 import {
   FC_CreateTender,
   RequiredDocumentInterface,
 } from "../../actions/tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
+import FilePreview from "../../components/FilePreview/FilePreview";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
 import { StoreState } from "../../reducers";
-import { DateTimeToString } from "../../utils/functions";
+import { DateTimeToString, FileTypes } from "../../utils/functions";
 import { AddTenderDocument } from "./AddTenderDocument";
 import { SetDocumentsOpeningDate } from "./SetDocumentsOpeningDate";
 
@@ -54,6 +61,8 @@ interface CreateTenderState {
   closing_time: string;
   required_document: RequiredDocumentInterface[];
   submitTender: boolean;
+  visibility: TenderVisibility;
+  PreviewBidDocument: boolean;
 }
 
 const InitialState: CreateTenderState = {
@@ -67,12 +76,14 @@ const InitialState: CreateTenderState = {
   published_time: "",
   closing_date: "",
   closing_time: "",
+  visibility: TenderVisibility.PUBLIC,
   required_document: [],
   loading: false,
   success: "",
   error: null,
   selectDocument: false,
   submitTender: false,
+  PreviewBidDocument: false,
 };
 class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
   constructor(props: CreateTenderProps) {
@@ -157,7 +168,7 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
       return this.setState({
         error: {
           type: "bid_document",
-          msg: "Please select tender BID document",
+          msg: "Please select tender Tender notice (DAO)",
         },
       });
     }
@@ -186,6 +197,7 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
         published_date: `${this.state.published_date} ${this.state.published_time}`,
         required_document: this.state.required_document,
         tender_name: this.state.tender_name,
+        visibility: this.state.visibility,
       },
       (
         loading: boolean,
@@ -487,26 +499,45 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
                     </div>
                     <div>
                       <div className="flex flex-col mb-4">
-                        <div className="text-sm mb-1">Bid Document</div>
-                        <input
-                          type={"file"}
-                          className={`px-3 py-2 rounded bg-gray-100 w-full ${
-                            this.state.error?.type === "bid_document"
-                              ? "border border-red-600"
-                              : ""
-                          }`}
-                          onChange={(e) =>
-                            this.setState({
-                              bid_document:
-                                e.target.files === null ||
-                                e.target.files.length === 0
-                                  ? null
-                                  : e.target.files[0],
-                              error: null,
-                            })
-                          }
-                          disabled={this.state.loading}
-                        />
+                        <div className="text-sm mb-1">Tender notice (DAO)</div>
+                        <div className="flex flex-row items-center gap-2">
+                          <input
+                            type={"file"}
+                            className={`px-3 py-2 rounded bg-gray-100 w-full ${
+                              this.state.error?.type === "bid_document"
+                                ? "border border-red-600"
+                                : ""
+                            }`}
+                            accept={FileTypes.PDF}
+                            onChange={(e) =>
+                              this.setState({
+                                bid_document:
+                                  e.target.files === null ||
+                                  e.target.files.length === 0
+                                    ? null
+                                    : e.target.files[0],
+                                error: null,
+                                PreviewBidDocument:
+                                  e.target.files === null ||
+                                  e.target.files.length === 0
+                                    ? false
+                                    : true,
+                              })
+                            }
+                            disabled={this.state.loading}
+                          />
+                          {this.state.bid_document !== null &&
+                            this.state.PreviewBidDocument === false && (
+                              <div
+                                onClick={() =>
+                                  this.setState({ PreviewBidDocument: true })
+                                }
+                                className="bg-white border border-primary-700 text-primary-900 hover:bg-primary-800 hover:text-white text-base font-bold px-3 py-2 rounded w-max cursor-pointer animate__animated animate__zoomIn animate__slow"
+                              >
+                                Preview
+                              </div>
+                            )}
+                        </div>
                         {this.state.error?.type === "bid_document" && (
                           <Alert
                             alertType={AlertType.DANGER}
@@ -596,15 +627,15 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
                                     </div>
                                     <div className="text-gray-500">
                                       <div className="flex flex-row items-center gap-2 text-xs mt-1">
-                                        <span>Opening date</span>
+                                        <span>Opening date & date</span>
                                         <span>
-                                          {DateTimeToString(item.opening_date)}
+                                          {item.opening_date === ""
+                                            ? ""
+                                            : DateTimeToString(
+                                                item.opening_date
+                                              )}
                                         </span>
                                       </div>
-                                      {/* <div className="flex flex-row items-center gap-2 text-xs">
-                                        <span>Opening step</span>
-                                        <span>{item.step}</span>
-                                      </div> */}
                                     </div>
                                   </div>
                                 </div>
@@ -703,7 +734,7 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
               body: true,
               footer: undefined,
             }}
-            title={<div>Add new required bid document</div>}
+            title={<div>Add required Tender notice (DAO)</div>}
           >
             <AddTenderDocument
               documents={this.props.system.basic_info.document}
@@ -756,10 +787,51 @@ class _CreateTender extends Component<CreateTenderProps, CreateTenderState> {
               onSubmitTender={(e: React.FormEvent<HTMLFormElement>) =>
                 this.SubmitTenderCreated(e)
               }
+              setTenderVisibility={(visibility: TenderVisibility) =>
+                this.setState({ visibility: visibility })
+              }
+              tenderVisibility={this.state.visibility}
               onClose={() => this.setState({ submitTender: false })}
             />
           </Modal>
         )}
+        {this.state.PreviewBidDocument === true &&
+          this.state.bid_document !== null && (
+            <Modal
+              backDrop={true}
+              theme={Themes.default}
+              close={() => this.setState({ PreviewBidDocument: false })}
+              backDropClose={true}
+              widthSizeClass={ModalSize.extraExtraLarge}
+              displayClose={true}
+              padding={{
+                title: true,
+                body: false,
+                footer: undefined,
+              }}
+              title="Tender Notice (DAO) Preview"
+            >
+              <div className="relative">
+                <div
+                  className="bg-gray-600"
+                  style={{ height: "calc(100vh - 100px)", overflowY: "auto" }}
+                >
+                  <FilePreview
+                    selectedFile={this.state.bid_document}
+                    onClose={() => {}}
+                    isComponent={true}
+                    className="h-full w-full"
+                  />
+                </div>
+                <div
+                  onClick={() => this.setState({ PreviewBidDocument: false })}
+                  className="absolute bottom-5 right-5 bg-green-600 text-white px-3 py-2 rounded-md font-bold border-2 border-white cursor-pointer hover:bg-green-700 animate__animated animate__bounceInUp animate__slow"
+                >
+                  Yes, Continue
+                </div>
+              </div>
+            </Modal>
+          )}
       </Fragment>
     );
   }

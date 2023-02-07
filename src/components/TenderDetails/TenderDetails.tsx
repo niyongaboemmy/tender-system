@@ -72,7 +72,7 @@ export class TenderDetails extends Component<
           <div className="col-span-12">
             <div className="flex flex-row items-center justify-between gap-2">
               <span className="text-sm text-gray-800 font-bold">
-                Bid document
+                Tender notice (DAO)
               </span>
               {this.state.viewDocument === true && (
                 <div>
@@ -142,7 +142,7 @@ export class TenderDetails extends Component<
                         </div>
                         <div className="text-gray-600">
                           <div className="flex flex-row items-center gap-2 text-xs mt-1">
-                            <span>Opening date</span>
+                            <span>Opening date & date</span>
                             <span>{DateTimeToString(item.opening_date)}</span>
                           </div>
                           {/* <div className="flex flex-row items-center gap-2 text-xs">

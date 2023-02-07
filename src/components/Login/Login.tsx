@@ -119,7 +119,7 @@ class _Login extends Component<LoginProps, LoginState> {
           <div className="mt-8 text-gray-700">
             <form onSubmit={this.LoginFn}>
               <div className="flex flex-col">
-                <div className="mb-1">Username</div>
+                <div className="mb-1">Username (Email or Phone Number)</div>
                 <input
                   type="text"
                   className={`w-full ${
@@ -227,7 +227,7 @@ class _Login extends Component<LoginProps, LoginState> {
                     >
                       {this.state.loading === true
                         ? "Loading, please wait..."
-                        : "Login to continue"}
+                        : "Login"}
                     </span>
                   </button>
                 </div>

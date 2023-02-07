@@ -1,35 +1,41 @@
 import React, { Component, Fragment } from "react";
-import { BsFileMedicalFill } from "react-icons/bs";
+import { FaVoteYea } from "react-icons/fa";
 import { connect } from "react-redux";
-import { Link, Redirect } from "react-router-dom";
+import { RouteComponentProps } from "react-router";
 import { Auth, System } from "../../actions";
 import {
-  FC_GetTendersOffers,
-  GetTenderOfferInterface,
+  FC_GetTendersSummaryForValidation,
   RequiredDocumentInterface,
+  TenderForValidationInterface,
 } from "../../actions/tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
-import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
-import { TenderDetails } from "../../components/TenderDetails/TenderDetails";
+import Modal, { Themes, ModalSize } from "../../components/Modal/Modal";
 import { StoreState } from "../../reducers";
-import { DateTimeToString, search } from "../../utils/functions";
+import { search, DateTimeToString, commaFy } from "../../utils/functions";
+import { Submissions } from "./Submissions";
 
-interface TendersListProps {
+interface TenderSubmissionsProps
+  extends RouteComponentProps<{
+    tender_id: string | undefined;
+  }> {
   auth: Auth;
   system: System;
 }
-interface TendersListState {
+interface TenderSubmissionsState {
   loading: boolean;
-  tenders: GetTenderOfferInterface[] | null;
+  tenders: TenderForValidationInterface[] | null;
   error: string;
-  selectedTender: GetTenderOfferInterface | null;
+  selectedTender: TenderForValidationInterface | null;
   selectedDocument: RequiredDocumentInterface | null;
   searchData: string;
 }
 
-class _TendersList extends Component<TendersListProps, TendersListState> {
-  constructor(props: TendersListProps) {
+export class _TenderSubmissions extends Component<
+  TenderSubmissionsProps,
+  TenderSubmissionsState
+> {
+  constructor(props: TenderSubmissionsProps) {
     super(props);
 
     this.state = {
@@ -41,26 +47,38 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
       searchData: "",
     };
   }
-  GetTenders = () => {
+  GetTendersSummary = () => {
     if (
       this.props.auth.user !== null &&
       this.props.auth.user.company.length > 0
     ) {
       this.setState({ loading: true });
       const companyId = this.props.auth.user.company[0].company_id;
-      FC_GetTendersOffers(
+      FC_GetTendersSummaryForValidation(
         companyId,
         (
           loading: boolean,
           res: {
             type: "success" | "error";
             msg: string;
-            data: GetTenderOfferInterface[];
+            data: TenderForValidationInterface[];
           } | null
         ) => {
           this.setState({ loading: loading });
           if (res?.type === "success") {
+            console.log("RES: ", res.data);
             this.setState({ tenders: res.data, error: "", loading: false });
+            if (
+              this.props.match.params.tender_id !== undefined &&
+              res.data.length > 0
+            ) {
+              const selectedTender = res.data.find(
+                (itm) => itm.tender_id === this.props.match.params.tender_id
+              );
+              if (selectedTender !== undefined) {
+                this.setState({ selectedTender: selectedTender });
+              }
+            }
           }
           if (res?.type === "error") {
             this.setState({ tenders: [], error: res.msg, loading: false });
@@ -69,20 +87,19 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
       );
     }
   };
+  GetTotalDocuments = (
+    tenderSummaryDetails: TenderForValidationInterface
+  ): number => {
+    var total: number = 0;
+    for (const item of tenderSummaryDetails.required_documents) {
+      total += item.total_document;
+    }
+    return total;
+  };
   componentDidMount = () => {
-    this.GetTenders();
+    this.GetTendersSummary();
   };
   render() {
-    if (
-      this.state.selectedDocument !== null &&
-      this.state.selectedTender !== null
-    ) {
-      return (
-        <Redirect
-          to={`/validate-application-document/${this.state.selectedTender.tender_id}/${this.state.selectedDocument.document_id}`}
-        />
-      );
-    }
     return (
       <Fragment>
         <div className="mx-0 md:mx-2">
@@ -90,22 +107,25 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
             <div className="flex flex-row items-center justify-between gap-2 w-full my-3">
               <div className="flex flex-row items-center gap-2">
                 <div>
-                  <BsFileMedicalFill className="text-5xl font-bold text-primary-800" />
+                  <div className="flex items-center justify-center bg-gray-50 rounded-md h-14 w-14">
+                    <FaVoteYea className="text-5xl font-bold text-primary-800" />
+                  </div>
                 </div>
                 <div className="font-bold items-center text-2xl">
-                  <div>List of tender offers</div>
-                  <div className="text-sm text-gray-500">
-                    List of provided tenders in different periods
+                  <div>Tender submissions validation</div>
+                  <div className="text-sm text-gray-500 font-normal">
+                    Choose tender to view summary of tender submissions and
+                    their docs validation statuses
                   </div>
                 </div>
               </div>
               <div>
-                <Link
+                {/* <Link
                   to="/create-tender"
                   className="bg-white text-primary-800 font-bold px-3 py-2 rounded cursor-pointer hover:bg-primary-800 hover:text-white"
                 >
                   Create tender
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>
@@ -143,7 +163,7 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
                     search(
                       this.state.tenders,
                       this.state.searchData
-                    ) as GetTenderOfferInterface[]
+                    ) as TenderForValidationInterface[]
                   ).length === 0 ? (
                   <div className="p-3 text-center w-full text-xl font-light">
                     No result found!
@@ -159,6 +179,10 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
                           <th className="px-3 py-2 border">Level</th>
                           <th className="px-3 py-2 border">Publication date</th>
                           <th className="px-3 py-2 border">Closing date</th>
+                          <th className="px-3 py-2 border">
+                            Total submissions
+                          </th>
+                          <th className="px-3 py-2 border"></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -166,28 +190,42 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
                           search(
                             this.state.tenders,
                             this.state.searchData
-                          ) as GetTenderOfferInterface[]
+                          ) as TenderForValidationInterface[]
                         ).map((item, i) => (
                           <tr
                             onClick={() =>
                               this.setState({ selectedTender: item })
                             }
                             key={i + 1}
-                            className={`cursor-pointer hover:text-primary-900`}
+                            className={`cursor-pointer hover:text-primary-900 group`}
                           >
-                            <td className="px-3 py-2 border">{i + 1}</td>
-                            <td className="px-3 py-2 border">
+                            <td className="px-2 py-2 border text-center">
+                              {i + 1}
+                            </td>
+                            <td className="px-2 py-2 border">
                               {item.tender_name}
                             </td>
-                            <td className="px-3 py-2 border">
+                            <td className="px-2 py-2 border">
                               {item.category}
                             </td>
-                            <td className="px-3 py-2 border">{item.level}</td>
-                            <td className="px-3 py-2 border">
+                            <td className="px-2 py-2 border">{item.level}</td>
+                            <td className="px-2 py-2 border text-xs">
                               {DateTimeToString(item.published_date)}
                             </td>
-                            <td className="px-3 py-2 border">
+                            <td className="px-2 py-2 border text-xs">
                               {DateTimeToString(item.closing_date)}
+                            </td>
+                            <td className="px-2 py-2 border text-center">
+                              {commaFy(
+                                item.required_documents.length === 0
+                                  ? 0
+                                  : item.required_documents[0].total_document
+                              )}
+                            </td>
+                            <td className="px-2 py-1 border w-12">
+                              <div className="flex flex-row items-center justify-center gap-2 bg-primary-50 text-primary-900 group-hover:bg-primary-800 group-hover:text-white text-sm px-3 py-2 rounded-md font-semibold">
+                                <span>Open</span>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -203,33 +241,45 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
           <Modal
             backDrop={true}
             theme={Themes.default}
-            close={() => this.setState({ selectedTender: null })}
+            close={() => {
+              this.setState({ selectedTender: null });
+              if (this.props.match.params.tender_id !== undefined) {
+                this.props.history.push("/tender-docs-validation");
+              }
+            }}
             backDropClose={true}
-            widthSizeClass={ModalSize.extraLarge}
-            displayClose={true}
+            widthSizeClass={ModalSize.extraExtraLarge}
+            displayClose={false}
             padding={{
-              title: true,
-              body: true,
+              title: false,
+              body: false,
               footer: undefined,
             }}
-            title={<div>{this.state.selectedTender.tender_name}</div>}
           >
-            <TenderDetails
-              tender={this.state.selectedTender}
-              system={this.props.system}
-              onSelectDocument={(document: RequiredDocumentInterface) => {
-                this.setState({
-                  selectedDocument: document,
-                  selectedTender: this.state.selectedTender,
-                });
-              }}
-            />
+            <div className="" style={{ minHeight: "calc(100vh - 100px)" }}>
+              <Submissions
+                tenderSummaryDetails={this.state.selectedTender}
+                onClose={() => {
+                  this.setState({ selectedTender: null });
+                  if (this.props.match.params.tender_id !== undefined) {
+                    this.props.history.push("/tender-docs-validation");
+                  }
+                }}
+                onOpenDocument={(doc_id: string) => {
+                  this.state.selectedTender !== null &&
+                    this.props.history.push(
+                      `/validate-application-document/${this.state.selectedTender.tender_id}/${doc_id}`
+                    );
+                }}
+              />
+            </div>
           </Modal>
         )}
       </Fragment>
     );
   }
 }
+
 const mapStateToProps = ({
   auth,
   system,
@@ -237,4 +287,7 @@ const mapStateToProps = ({
   return { auth, system };
 };
 
-export const TendersList = connect(mapStateToProps, {})(_TendersList);
+export const TenderSubmissions = connect(
+  mapStateToProps,
+  {}
+)(_TenderSubmissions);

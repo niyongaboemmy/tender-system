@@ -9,6 +9,7 @@ import {
   DocumentType,
   DocumentValidationStep,
   TenderLevel,
+  TenderVisibility,
 } from "./system.action";
 
 export interface RequiredDocumentInterface {
@@ -17,6 +18,19 @@ export interface RequiredDocumentInterface {
   step: DocumentValidationStep;
   required: BooleanEnum;
   document_type: DocumentType;
+}
+
+export interface RequiredDocumentSummary {
+  title: string;
+  document_id: string;
+  opening_date: string;
+  required: BooleanEnum;
+  step: StepItem;
+  type: DocumentType;
+  tender_id: string;
+  required_document_id: string;
+  total_document: number;
+  total_validated: number;
 }
 
 export interface CreateTenderDataInterface {
@@ -29,7 +43,21 @@ export interface CreateTenderDataInterface {
   published_date: string;
   closing_date: string;
   required_document: RequiredDocumentInterface[];
+  visibility: TenderVisibility;
 }
+export interface TenderForValidationInterface {
+  tender_id: string;
+  category_id: string;
+  category: string;
+  tender_name: string;
+  details: string;
+  level: TenderLevel;
+  published_date: string;
+  closing_date: string;
+  bid_document: string;
+  required_documents: RequiredDocumentSummary[];
+}
+
 export interface GetTenderOfferInterface {
   tender_id: string;
   category_id: string;
@@ -76,7 +104,7 @@ export interface CompanyTenderApplicationInterface {
   bid_document: string;
   status: ApplicationStatus;
   documents: {
-    // application_document_id: string;
+    application_document_id: string;
     application_id: string;
     doc: string;
     document_id: string;
@@ -88,6 +116,7 @@ export interface CompanyTenderApplicationInterface {
     required: BooleanEnum;
     step: StepItem;
     tender_id: string;
+    required_document_id: string;
   }[];
 }
 
@@ -325,5 +354,59 @@ export const FC_SubmitApplication = async (
   } catch (error: any) {
     console.log("Err: ", { ...error });
     callBack(false, { type: "error", msg: errorToText(error) });
+  }
+};
+
+export const FC_RemoveDocument = async (
+  application_document_id: string,
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.delete(
+      `${API_URL}/application/doc/${application_document_id}`
+    );
+    if (res) {
+      callBack(false, {
+        type: "success",
+        msg: "Document removed successfully",
+      });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error) });
+  }
+};
+
+export const FC_GetTendersSummaryForValidation = async (
+  company_id: string,
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+      data: TenderForValidationInterface[];
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.get<TenderForValidationInterface[]>(
+      `${API_URL}/tender/offers/summary/company/${company_id}`
+    );
+    if (res) {
+      callBack(false, { type: "success", msg: "", data: res.data });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error), data: [] });
   }
 };

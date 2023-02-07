@@ -130,6 +130,9 @@ class _BidderApplications extends Component<
               this.setState({ selectedApplication: null });
               this.GetTenderApplications(null);
             }}
+            onReload={() => {
+              this.GetTenderApplications(this.state.selectedApplication);
+            }}
           />
         </div>
       );
@@ -144,7 +147,7 @@ class _BidderApplications extends Component<
                   <HiOutlineBriefcase className="text-5xl font-bold text-primary-800" />
                 </div>
                 <div className="font-bold items-center text-2xl">
-                  <div>My applications</div>
+                  <div>My submissions</div>
                   <div className="text-sm text-black font-normal">
                     List of tenders that I have applied for
                   </div>
@@ -155,7 +158,7 @@ class _BidderApplications extends Component<
                   to="/tenders"
                   className="bg-white text-primary-800 font-bold px-3 py-2 rounded cursor-pointer hover:bg-primary-800 hover:text-white"
                 >
-                  Create new application
+                  Create new submission
                 </Link>
               </div>
             </div>
@@ -184,7 +187,7 @@ class _BidderApplications extends Component<
                         <RiSearchLine className="text-8xl text-gray-300" />
                       </div>
                       <div className="text-xl font-bold">
-                        No available applications
+                        No available submissions
                       </div>
                       <div className="text-sm text-gray-500">
                         You have not yet applied to any tender publication
@@ -221,7 +224,7 @@ class _BidderApplications extends Component<
                                   </span>
                                 )}
                               </div>
-                              <div className="text-sm mb-2 w-full truncate text-gray-500">
+                              <div className="text-xs mb-2 mt-1 w-full truncate text-gray-600">
                                 {item.details}
                               </div>
                               <div className="grid grid-cols-12 gap-1 text-sm w-full">
@@ -258,7 +261,7 @@ class _BidderApplications extends Component<
                                   <BsFolder2Open className="text-xl" />
                                 </div>
                                 <span className="text-sm font-semibold truncate">
-                                  Draft, complete
+                                  Draft, open
                                 </span>
                               </div>
                             ) : (

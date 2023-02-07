@@ -71,6 +71,37 @@ export interface TenderApplicationsListInterface {
   application: GetApplicationForValidation[];
 }
 
+export interface TenderDocumentsSubmissionsListInterface {
+  application_document_id: string;
+  required_document_id: string;
+  application_id: string;
+  doc: string;
+  is_validated: BooleanEnum;
+  is_correct: ApplicationDocIsCorrect;
+  comment: string;
+  document_id: string;
+}
+export interface TenderSubmissionsListInterface {
+  company_id: string;
+  tin_number: string;
+  compony_name: string;
+  country: string;
+  company_phone: string;
+  company_email: string;
+  application_id: string;
+  tender_id: string;
+  category_id: string;
+  category: string;
+  tender_name: string;
+  details: string;
+  level: string;
+  published_date: string;
+  status: ApplicationStatus;
+  closing_date: string;
+  bid_document: string;
+  documents: TenderDocumentsSubmissionsListInterface[];
+}
+
 export const FC_GetTenderApplicationsToBeValidated = async (
   required_document_id: string,
   tender_id: string,
@@ -178,5 +209,32 @@ export const FC_UpdateDocumentDecision = async (
   } catch (error: any) {
     console.log("Err: ", { ...error });
     callBack(false, { type: "error", msg: errorToText(error) });
+  }
+};
+
+export const FC_GetTenderSubmissions = async (
+  tender_id: string,
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+      data: TenderSubmissionsListInterface[];
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.get<TenderSubmissionsListInterface[]>(
+      `${API_URL}/application/company/validated/${tender_id}`
+    );
+    console.log("Res: ", res);
+    if (res) {
+      callBack(false, { type: "success", msg: "", data: res.data });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error), data: [] });
   }
 };

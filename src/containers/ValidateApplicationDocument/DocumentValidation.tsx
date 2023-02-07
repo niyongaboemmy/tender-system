@@ -197,7 +197,7 @@ export class DocumentValidation extends Component<
             <div className="mt-4">
               <div className="mb-2">
                 <div className="text-sm mb-1 font-bold">
-                  Comment form the document
+                  Comment for the document
                 </div>
                 {this.SelectedDocument() !== null &&
                 this.SelectedDocument()!.is_validated === BooleanEnum.TRUE ? (

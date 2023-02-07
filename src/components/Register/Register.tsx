@@ -3,6 +3,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoMdPersonAdd } from "react-icons/io";
 import { connect } from "react-redux";
 import { Redirect } from "react-router";
+import { Link } from "react-router-dom";
 import {
   Auth,
   FC_GetSystemInfo,
@@ -257,7 +258,7 @@ class _Register extends Component<RegisterProps, RegisterState> {
       <div className="bg-white w-full md:w-3/5 lg:w-4/5 rounded-lg">
         <div className="w-full p-3 px-5 md:py-8 md:px-8">
           <div className="flex flex-row items-center gap-3 ">
-            <div className="text-xl font-bold">Register Account</div>
+            <div className="text-xl font-bold">Login Account</div>
           </div>
           <div>
             <Steps
@@ -352,50 +353,62 @@ class _Register extends Component<RegisterProps, RegisterState> {
                   />
                 </div>
               )}
-              <div className="flex flex-row items-center justify-end mt-6 gap-3">
-                {this.state.selectedStep === StepItem.STEP2 &&
-                  this.state.loading === false && (
-                    <div
-                      onClick={() =>
-                        this.setState({ selectedStep: StepItem.STEP1 })
-                      }
-                      className="px-3 py-2 rounded-md bg-primary-100 text-primary-800 hover:bg-primary-800 hover:text-white cursor-pointer w-max"
-                    >
-                      Edit personal info
-                    </div>
-                  )}
-                <button
-                  className={`flex flex-row items-center justify-center gap-2 p-2 pr-4 ${
-                    this.state.selectedStep === StepItem.STEP2
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-primary-800 hover:bg-primary-900"
-                  } text-white rounded`}
-                  type="submit"
-                  disabled={this.state.loading}
-                >
-                  <div>
-                    {this.state.loading === true ? (
-                      <AiOutlineLoading3Quarters className="text-2xl animate-spin" />
-                    ) : this.state.selectedStep === StepItem.STEP2 ? (
-                      <IoMdPersonAdd className="text-2xl" />
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                  <span
-                    className={`${
-                      this.state.loading === true
-                        ? "animate__animated animate__fadeIn animate__infinite"
-                        : ""
-                    }`}
+              <div className="flex flex-row items-center justify-between gap-2 mt-6">
+                {this.state.selectedStep === StepItem.STEP1 ? (
+                  <Link
+                    className="text-primary-900 hover:underline text-sm font-bold"
+                    to={"/login"}
                   >
-                    {this.state.loading === true
-                      ? "Loading, please wait..."
-                      : this.state.selectedStep === StepItem.STEP1
-                      ? "Next step"
-                      : "Register"}
-                  </span>
-                </button>
+                    I have account, Login?
+                  </Link>
+                ) : (
+                  ""
+                )}
+                <div className="flex flex-row items-center justify-end gap-3">
+                  {this.state.selectedStep === StepItem.STEP2 &&
+                    this.state.loading === false && (
+                      <div
+                        onClick={() =>
+                          this.setState({ selectedStep: StepItem.STEP1 })
+                        }
+                        className="px-3 py-2 rounded-md bg-primary-100 text-primary-800 hover:bg-primary-800 hover:text-white cursor-pointer w-max"
+                      >
+                        Edit personal info
+                      </div>
+                    )}
+                  <button
+                    className={`flex flex-row items-center justify-center gap-2 p-2 pr-4 ${
+                      this.state.selectedStep === StepItem.STEP2
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-primary-800 hover:bg-primary-900"
+                    } text-white rounded`}
+                    type="submit"
+                    disabled={this.state.loading}
+                  >
+                    <div>
+                      {this.state.loading === true ? (
+                        <AiOutlineLoading3Quarters className="text-2xl animate-spin" />
+                      ) : this.state.selectedStep === StepItem.STEP2 ? (
+                        <IoMdPersonAdd className="text-2xl" />
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                    <span
+                      className={`${
+                        this.state.loading === true
+                          ? "animate__animated animate__fadeIn animate__infinite"
+                          : ""
+                      }`}
+                    >
+                      {this.state.loading === true
+                        ? "Loading, please wait..."
+                        : this.state.selectedStep === StepItem.STEP1
+                        ? "Next step"
+                        : "Register"}
+                    </span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>

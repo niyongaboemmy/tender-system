@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { BsCheckCircleFill, BsFileEarmarkPdf } from "react-icons/bs";
+import { BsFileEarmarkPdf } from "react-icons/bs";
 import { HiArrowSmLeft } from "react-icons/hi";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router";
@@ -21,7 +21,7 @@ import LoadingComponent from "../../components/Loading/LoadingComponent";
 import MainContainer from "../../components/MainContainer/MainContainer";
 import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
 import { StoreState } from "../../reducers";
-import { search } from "../../utils/functions";
+import { DateTimeToString, search } from "../../utils/functions";
 import { DocumentValidation } from "./DocumentValidation";
 
 interface ValidateApplicationDocumentProps
@@ -179,7 +179,9 @@ class _ValidateApplicationDocument extends Component<
             <div className="flex flex-row items-center justify-between gap-2 w-full mb-3">
               <div className="flex flex-row items-center gap-3">
                 <div>
-                  <Link to={"/tenders-list"}>
+                  <Link
+                    to={`/tender-docs-validation/${this.props.match.params.tender_id}`}
+                  >
                     <div className="px-3 pl-1 py-1 border border-primary-700 text-primary-900 rounded bg-white hover:bg-primary-50 hover:text-primary-900 w-max cursor-pointer flex flex-row items-center justify-center gap-1">
                       <div>
                         <HiArrowSmLeft className="text-primary-800 text-2xl" />
@@ -220,22 +222,22 @@ class _ValidateApplicationDocument extends Component<
                 </div>
               </div>
               <div className="flex flex-row items-center justify-end gap-2">
-                <div className="border border-primary-100 bg-primary-800 text-white rounded p-1 px-4 text-center">
-                  <div className="text-sm font-light">Validated</div>
-                  <div className="text-xl font-bold -mt-1">
-                    {this.state.data.application.length}
+                {this.GetSelectedDocument() !== null && (
+                  <div className="border border-primary-100 bg-primary-800 text-white rounded p-1 px-3 text-left">
+                    <div className="text-sm font-light text-yellow-300">
+                      Open Date & Time
+                    </div>
+                    <div className="text-sm font-bold truncate">
+                      {DateTimeToString(
+                        this.GetSelectedDocument()!.opening_date
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="border border-primary-100 bg-primary-800 text-white rounded p-1 px-4 text-center">
-                  <div className="text-sm font-light">Waiting</div>
-                  <div className="text-xl font-bold -mt-1">
-                    {this.GetNotValidatedDocuments()}
-                  </div>
-                </div>
+                )}
                 <div className="border border-primary-100 bg-primary-800 text-white rounded p-1 px-4 text-center">
                   <div className="text-sm font-light">Total</div>
-                  <div className="text-xl font-bold -mt-1">
-                    {this.GetValidatedDocuments()}
+                  <div className="text-base font-bold -mt-1">
+                    {this.state.data.application.length}
                   </div>
                 </div>
               </div>
@@ -255,10 +257,13 @@ class _ValidateApplicationDocument extends Component<
             {this.state.data.application.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 px-3">
                 <div></div>
-                <div className="text-xl font-bold">No applications found!</div>
+                <div className="text-xl font-bold">
+                  This document is validated!
+                </div>
                 {this.state.error === "" ? (
                   <div className="text-sm text-gray-500 mt-1">
-                    No applicants have submitted their applications found!
+                    This document is validated for all companies, Go back to
+                    validate other documents
                   </div>
                 ) : (
                   <div className="text-sm text-gray-500 mt-1">
@@ -315,11 +320,7 @@ class _ValidateApplicationDocument extends Component<
                               this.setState({ selectedApplication: item })
                             }
                           >
-                            <td className="px-2 py-1 border w-10">
-                              <div>
-                                <BsCheckCircleFill className="text-3xl text-primary-800" />
-                              </div>
-                            </td>
+                            <td className="px-2 py-1 border w-3">{i + 1}</td>
                             <td className="px-3 py-2 border">
                               {item.compony_name}
                             </td>

@@ -1,16 +1,22 @@
 import React, { Component, Fragment } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { BsArrowLeft, BsCheckCircle, BsFileEarmarkPdf } from "react-icons/bs";
-import { RiDraftLine, RiUploadCloud2Fill } from "react-icons/ri";
+import { MdOutlineSmsFailed } from "react-icons/md";
+import {
+  RiDraftLine,
+  RiErrorWarningFill,
+  RiUploadCloud2Fill,
+} from "react-icons/ri";
 import { ApplicationStatus, DocFolder, System } from "../../actions";
 import {
   CompanyTenderApplicationInterface,
   FC_CancelApplication,
+  FC_RemoveDocument,
   FC_SubmitApplication,
   FC_SubmitRequiredDocument,
 } from "../../actions/tender.action";
 import { API_URL } from "../../utils/api";
-import { DateTimeToString } from "../../utils/functions";
+import { DateTimeToString, FileTypes } from "../../utils/functions";
 import Alert, { AlertType } from "../Alert/Alert";
 import FilePreview from "../FilePreview/FilePreview";
 import Modal, { ModalSize, Themes } from "../Modal/Modal";
@@ -22,6 +28,7 @@ interface BidderApplicationDetailsProps {
   onBack: () => void;
   onSuccess: () => void;
   onRemoveApplication: () => void;
+  onReload: () => void;
 }
 interface BidderApplicationDetailsState {
   viewDocument: string;
@@ -30,6 +37,7 @@ interface BidderApplicationDetailsState {
     file: File;
     document_id: string;
     document_title: string;
+    required_document_id: string;
   } | null;
   selectedDocumentPreview: {
     document_id: string;
@@ -40,6 +48,8 @@ interface BidderApplicationDetailsState {
   success: string;
   cancelling: boolean;
   submitting: boolean;
+  addingDocument: boolean;
+  removingDoc: string;
 }
 
 export class BidderApplicationDetails extends Component<
@@ -58,6 +68,8 @@ export class BidderApplicationDetails extends Component<
       cancelling: false,
       submitting: false,
       selectedDocumentPreview: null,
+      addingDocument: false,
+      removingDoc: "",
     };
   }
   FindDocument = (document_id: string) => {
@@ -74,7 +86,7 @@ export class BidderApplicationDetails extends Component<
     required_document_id: string,
     doc: File
   ) => {
-    this.setState({ loading: true });
+    this.setState({ loading: false, addingDocument: true });
     FC_SubmitRequiredDocument(
       {
         application_id: application_id,
@@ -88,7 +100,7 @@ export class BidderApplicationDetails extends Component<
           msg: string;
         } | null
       ) => {
-        this.setState({ loading: loading });
+        this.setState({ addingDocument: loading });
         if (res?.type === "success") {
           this.setState({
             error: "",
@@ -97,18 +109,53 @@ export class BidderApplicationDetails extends Component<
           // Reload the details
           setTimeout(() => {
             this.props.onSuccess();
-          }, 2000);
+          }, 3000);
         }
         if (res?.type === "error") {
           this.setState({
             error: res.msg,
             success: "",
             loading: false,
+            addingDocument: false,
             selectedFile: null,
           });
         }
       }
     );
+  };
+  RemoveDocument = (application_document_id: string) => {
+    if (
+      window.confirm(
+        "Are you sure do you want to remove this document? You can not undo the action!"
+      ) === true
+    ) {
+      this.setState({
+        removingDoc: application_document_id,
+        selectedDocumentPreview: null,
+      });
+      FC_RemoveDocument(
+        application_document_id,
+        (
+          loading: boolean,
+          res: {
+            type: "success" | "error";
+            msg: string;
+          } | null
+        ) => {
+          this.setState({ removingDoc: application_document_id });
+          if (res?.type === "success") {
+            this.setState({ success: res.msg, error: "", removingDoc: "" });
+            // Reload the details
+            setTimeout(() => {
+              this.props.onReload();
+            }, 1000);
+          }
+          if (res?.type === "error") {
+            this.setState({ error: res.msg, success: "", removingDoc: "" });
+          }
+        }
+      );
+    }
   };
   CancelApplication = () => {
     if (
@@ -132,7 +179,7 @@ export class BidderApplicationDetails extends Component<
             // Reload the details
             setTimeout(() => {
               this.props.onRemoveApplication();
-            }, 2000);
+            }, 4000);
           }
           if (res?.type === "error") {
             this.setState({ error: res.msg, success: "", cancelling: false });
@@ -240,7 +287,7 @@ export class BidderApplicationDetails extends Component<
                       </div>
                       <div className="text-black">
                         <div className="text-sm font-light">
-                          Application status
+                          Submission status
                         </div>
                         <div className="font-bold">Draft, please submit</div>
                       </div>
@@ -248,7 +295,7 @@ export class BidderApplicationDetails extends Component<
                   </div>
                 ) : (
                   <div className="text-center flex flex-col items-end">
-                    <div className="text-sm font-bold">Application status</div>
+                    <div className="text-sm font-bold">Submission status</div>
                     <div className="bg-green-100 text-green-600 px-3 py-2 rounded-md text-sm w-max flex flex-row items-center justify-center gap-2">
                       Submitted
                     </div>
@@ -281,9 +328,17 @@ export class BidderApplicationDetails extends Component<
             <div className="col-span-12">
               <div className="flex flex-col text-sm">
                 <div className="flex flex-row items-center justify-between gap-2 mb-4">
-                  <span className="text-base text-gray-800 font-bold">
-                    Required documents
-                  </span>
+                  <div className="flex flex-row items-center gap-2">
+                    <span className="text-base text-gray-800 font-bold">
+                      Required documents
+                    </span>
+                    <div className="text-yellow-800 flex flex-row items-center gap-1 bg-yellow-50 p-1 px-2 pl-1 rounded-md">
+                      <div>
+                        <RiErrorWarningFill className="text-2xl animate__animated animate__zoomIn animate__infinite" />
+                      </div>
+                      <div className="font-bold">PDF only</div>
+                    </div>
+                  </div>
                   <div></div>
                 </div>
                 {this.props.application.required_document.map((item, i) => (
@@ -317,7 +372,7 @@ export class BidderApplicationDetails extends Component<
                           </div>
                         ) : (
                           <div className="text-xs text-gray-500 mt-1">
-                            Validation date:{" "}
+                            Opening date & date:{" "}
                             {DateTimeToString(item.opening_date)}
                           </div>
                         )}
@@ -337,9 +392,10 @@ export class BidderApplicationDetails extends Component<
                             <input
                               className="cursor-pointer absolute block py-2 px-4 w-full opacity-0 pin-r pin-t"
                               type={"file"}
-                              accept={"pdf/*"}
                               onChange={(e) => {
                                 this.setState({
+                                  error: "",
+                                  success: "",
                                   selectedFile:
                                     e.target.files === null ||
                                     e.target.files.length === 0
@@ -348,6 +404,8 @@ export class BidderApplicationDetails extends Component<
                                           document_id: item.document_id,
                                           file: e.target.files[0],
                                           document_title: item.title,
+                                          required_document_id:
+                                            item.required_document_id,
                                         },
                                 });
                               }}
@@ -361,27 +419,53 @@ export class BidderApplicationDetails extends Component<
                           <div>
                             <BsCheckCircle className="text-green-600 text-3xl" />
                           </div>
-                          <div
-                            onClick={() =>
-                              this.FindDocument(item.document_id) !== null &&
-                              this.setState({
-                                selectedDocumentPreview: {
-                                  doc: this.FindDocument(item.document_id)!.doc,
-                                  document_id: item.document_id,
-                                  title: item.title,
-                                },
-                              })
-                            }
-                            className="px-3 py-2 rounded-md font-bold bg-gray-100 text-gray-800 hover:bg-gray-500 hover:text-white cursor-pointer w-max"
-                          >
-                            View
-                          </div>
-                          {this.props.application.status ===
-                            ApplicationStatus.DRAFT && (
-                            <div className="px-3 py-2 rounded-md bg-red-100 text-red-800 hover:bg-red-600 hover:text-white cursor-pointer w-max">
-                              Remove
+                          {this.state.removingDoc === "" && (
+                            <div
+                              onClick={() =>
+                                this.FindDocument(item.document_id) !== null &&
+                                this.setState({
+                                  selectedDocumentPreview: {
+                                    doc: this.FindDocument(item.document_id)!
+                                      .doc,
+                                    document_id: item.document_id,
+                                    title: item.title,
+                                  },
+                                })
+                              }
+                              className="px-3 py-2 rounded-md font-bold bg-gray-100 text-gray-800 hover:bg-gray-500 hover:text-white cursor-pointer w-max"
+                            >
+                              View
                             </div>
                           )}
+                          {this.props.application.status ===
+                            ApplicationStatus.DRAFT &&
+                            this.FindDocument(item.document_id) !== null &&
+                            (this.state.removingDoc === "" ? (
+                              <div
+                                onClick={() =>
+                                  this.RemoveDocument(
+                                    this.FindDocument(item.document_id)!
+                                      .application_document_id
+                                  )
+                                }
+                                className="px-3 py-2 rounded-md bg-red-100 text-red-800 hover:bg-red-600 hover:text-white cursor-pointer w-max"
+                              >
+                                Remove
+                              </div>
+                            ) : this.state.removingDoc ===
+                              this.FindDocument(item.document_id)
+                                ?.application_document_id ? (
+                              <div className="flex flex-row items-center justify-end gap-2 bg-gray-100 rounded-md p-1 pr-2">
+                                <div>
+                                  <AiOutlineLoading3Quarters className="animate-spin text-2xl text-yellow-600" />
+                                </div>
+                                <span className="animate__animated animate__fadeIn animate__infinite">
+                                  Removing...
+                                </span>
+                              </div>
+                            ) : (
+                              <div></div>
+                            ))}
                         </div>
                       )}
                     </div>
@@ -394,14 +478,14 @@ export class BidderApplicationDetails extends Component<
                 onClick={() => this.CancelApplication()}
                 className="bg-yellow-100 text-yellow-800 hover:text-white hover:bg-yellow-700 px-3 py-2 rounded-md w-max cursor-pointer"
               >
-                Cancel application
+                Cancel submission
               </div>
               {this.props.application.status === ApplicationStatus.DRAFT && (
                 <div
                   onClick={() => this.SubmitApplication()}
                   className="bg-green-600 text-white hover:bg-green-700 px-3 py-2 rounded-md w-max cursor-pointer"
                 >
-                  Submit application
+                  Submit
                 </div>
               )}
             </div>
@@ -413,6 +497,7 @@ export class BidderApplicationDetails extends Component<
             theme={Themes.default}
             close={() =>
               this.state.loading === false &&
+              this.state.addingDocument === false &&
               this.setState({ selectedFile: null })
             }
             backDropClose={true}
@@ -436,17 +521,80 @@ export class BidderApplicationDetails extends Component<
                 />
               </div>
             )}
-            {this.state.loading === false ? (
+            {this.state.error !== "" && (
+              <div className="col-span-12 my-3">
+                <Alert
+                  alertType={AlertType.DANGER}
+                  title={this.state.error}
+                  close={() => {
+                    this.setState({ error: "", success: "" });
+                  }}
+                />
+              </div>
+            )}
+            {this.state.loading === false &&
+            this.state.addingDocument === false ? (
               <div
                 className="overflow-y-auto"
                 style={{ height: "calc(100vh - 200px)" }}
               >
-                <FilePreview
-                  selectedFile={this.state.selectedFile.file}
-                  onClose={() => {}}
-                  isComponent={true}
-                  className="h-full"
-                />
+                {this.state.selectedFile.file.type === FileTypes.PDF ? (
+                  <FilePreview
+                    selectedFile={this.state.selectedFile.file}
+                    onClose={() => {}}
+                    isComponent={true}
+                    className="h-full"
+                  />
+                ) : (
+                  <div className="h-full w-full flex flex-col items-center justify-center text-white bg-gray-600">
+                    <div className="">
+                      <MdOutlineSmsFailed className="text-9xl text-gray-400 animate__animated animate__shakeX" />
+                    </div>
+                    <div className="font-bold text-2xl">
+                      Invalid file, only{" "}
+                      <span className="text-yellow-400">PDF</span> allowed
+                    </div>
+                    <div className="font-light text-sm">
+                      You uploaded invalid file, Please you are required to
+                      change your document or file type to PDF
+                    </div>
+                    <div className="mt-6 bg-gray-500 p-3 text-left rounded-md px-6 animate__animated animate__zoomIn animate__slow">
+                      <div className="text-yellow-400 text-sm font-bold">
+                        Steps to convert Word to PDF
+                      </div>
+                      <div className="mt-3 text-sm text-gray-300">
+                        <div className="flex flex-row items-center gap-2 mb-2">
+                          <div className="h-7 w-7 rounded-full bg-gray-600 text-white flex items-center justify-center font-bold">
+                            1
+                          </div>
+                          <div>Open word document and click on File</div>
+                        </div>
+                        <div className="flex flex-row items-center gap-2 mb-2">
+                          <div className="h-7 w-7 rounded-full bg-gray-600 text-white flex items-center justify-center font-bold">
+                            2
+                          </div>
+                          <div>Click on Save as</div>
+                        </div>
+                        <div className="flex flex-row items-center gap-2 mb-2">
+                          <div className="h-7 w-7 rounded-full bg-gray-600 text-white flex items-center justify-center font-bold">
+                            3
+                          </div>
+                          <div>
+                            From File Format, Choose PDF, and Click save
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <div
+                        onClick={() => this.setState({ selectedFile: null })}
+                        className="px-3 py-2 rounded-md bg-primary-800 hover:bg-primary-500 text-white cursor-pointer"
+                      >
+                        Yes, Continue
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-6 py-8">
@@ -458,29 +606,32 @@ export class BidderApplicationDetails extends Component<
                 </div>
               </div>
             )}
-            {this.state.loading === false && (
-              <div className="border-t p-3 flex flex-row items-center justify-end gap-2">
-                <div
-                  onClick={() => this.setState({ selectedFile: null })}
-                  className="px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-500 hover:text-white cursor-pointer"
-                >
-                  Cancel
+            {this.state.loading === false &&
+              this.state.addingDocument === false && (
+                <div className="border-t p-3 flex flex-row items-center justify-end gap-2">
+                  <div
+                    onClick={() => this.setState({ selectedFile: null })}
+                    className="px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-500 hover:text-white cursor-pointer"
+                  >
+                    Cancel
+                  </div>
+                  {this.state.selectedFile.file.type === FileTypes.PDF && (
+                    <div
+                      onClick={() =>
+                        this.state.selectedFile !== null &&
+                        this.AddDocument(
+                          this.props.application.application_id,
+                          this.state.selectedFile.required_document_id,
+                          this.state.selectedFile.file
+                        )
+                      }
+                      className="px-3 py-2 rounded-md bg-primary-800 hover:bg-primary-500 text-white cursor-pointer"
+                    >
+                      Submit document
+                    </div>
+                  )}
                 </div>
-                <div
-                  onClick={() =>
-                    this.state.selectedFile !== null &&
-                    this.AddDocument(
-                      this.props.application.application_id,
-                      this.state.selectedFile.document_id,
-                      this.state.selectedFile.file
-                    )
-                  }
-                  className="px-3 py-2 rounded-md bg-primary-800 hover:bg-primary-500 text-white cursor-pointer"
-                >
-                  Submit document
-                </div>
-              </div>
-            )}
+              )}
           </Modal>
         )}
         {this.state.selectedDocumentPreview !== null && (
@@ -548,9 +699,17 @@ export class BidderApplicationDetails extends Component<
                 </div>
                 {this.props.application.status === ApplicationStatus.DRAFT && (
                   <div
-                    onClick={() => {
-                      // Waiting
-                    }}
+                    onClick={() =>
+                      this.state.selectedDocumentPreview !== null &&
+                      this.FindDocument(
+                        this.state.selectedDocumentPreview.document_id
+                      ) !== null &&
+                      this.RemoveDocument(
+                        this.FindDocument(
+                          this.state.selectedDocumentPreview.document_id
+                        )!.application_document_id
+                      )
+                    }
                     className="px-3 py-2 rounded-md bg-red-100 text-red-700 hover:bg-red-700 hover:text-white cursor-pointer"
                   >
                     Remove document

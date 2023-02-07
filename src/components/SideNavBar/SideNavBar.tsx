@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from "react";
 import { IconType } from "react-icons";
 import { AiOutlineAppstoreAdd, AiOutlineDashboard } from "react-icons/ai";
-import { FaChalkboardTeacher, FaUserCircle } from "react-icons/fa";
+import { BsFileEarmarkPdf } from "react-icons/bs";
+import { FaUserCircle, FaVoteYea } from "react-icons/fa";
 import { HiOutlineBriefcase } from "react-icons/hi";
 import { MdClose, MdOutlineAddReaction } from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
@@ -62,9 +63,16 @@ export class SideNavBar extends Component<SideNavBarProps, SideNavBarState> {
       },
       {
         key: MENU_TYPE.ACTIVITIES,
-        title: "Tender Applications",
-        path: "/tender-applications",
-        icon: FaChalkboardTeacher,
+        title: "Documents validation",
+        path: "/tender-docs-validation",
+        icon: BsFileEarmarkPdf,
+        userType: UserType.HOLDER,
+      },
+      {
+        key: MENU_TYPE.ACTIVITIES,
+        title: "Submissions validation",
+        path: "/tender-submissions-validation",
+        icon: FaVoteYea,
         userType: UserType.HOLDER,
       },
       {
@@ -76,7 +84,7 @@ export class SideNavBar extends Component<SideNavBarProps, SideNavBarState> {
       },
       {
         key: MENU_TYPE.ACTIVITIES,
-        title: "My Applications",
+        title: "My submissions",
         path: "/applications",
         icon: HiOutlineBriefcase,
         userType: UserType.BIDER,
