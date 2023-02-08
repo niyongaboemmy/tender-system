@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { BsFileEarmarkPdf } from "react-icons/bs";
-import { ApplicationDocIsCorrect, BooleanEnum, DocFolder } from "../../actions";
+import {
+  ApplicationDocIsCorrect,
+  BooleanEnum,
+  DocFolder,
+  GetDocStatus,
+} from "../../actions";
 import {
   FC_UpdateDocumentDecision,
   GetApplicationForValidation,
@@ -22,6 +27,7 @@ interface DocumentValidationState {
   validation_comment: string;
   error: string;
   success: string;
+  selectedStatus: ApplicationDocIsCorrect;
 }
 
 export class DocumentValidation extends Component<
@@ -36,6 +42,7 @@ export class DocumentValidation extends Component<
       validation_comment: "",
       error: "",
       success: "",
+      selectedStatus: ApplicationDocIsCorrect.VALID,
     };
   }
   SelectedDocument = () => {
@@ -47,19 +54,17 @@ export class DocumentValidation extends Component<
     }
     return null;
   };
-  UpdateDocumentStatus = (status: ApplicationDocIsCorrect) => {
+  UpdateDocumentStatus = () => {
+    const selectedStatus = this.state.selectedStatus;
     this.setState({ error: "", success: "" });
     if (
       window.confirm(
-        `Are you sure do you want to ${
-          status === ApplicationDocIsCorrect.VALID ? "Accept" : "Reject"
-        } this document`
+        `Are you sure do you want to set document status as ${GetDocStatus(
+          selectedStatus
+        )}?`
       ) === true
     ) {
-      if (
-        this.state.validation_comment === "" &&
-        status === ApplicationDocIsCorrect.INVALID
-      ) {
+      if (this.state.validation_comment === "") {
         return this.setState({
           error: "Please fill the comment for your decision",
         });
@@ -71,7 +76,7 @@ export class DocumentValidation extends Component<
           {
             application_document_id:
               this.SelectedDocument()!.application_document_id,
-            is_correct: ApplicationDocIsCorrect.VALID,
+            is_correct: selectedStatus,
             comment: this.state.validation_comment,
           },
           (
@@ -253,28 +258,38 @@ export class DocumentValidation extends Component<
                   {this.SelectedDocument() !== null &&
                   this.SelectedDocument()!.is_validated ===
                     BooleanEnum.FALSE ? (
-                    <div className="flex flex-row items-center gap-2">
-                      <div
-                        onClick={() =>
-                          this.UpdateDocumentStatus(
-                            ApplicationDocIsCorrect.VALID
-                          )
-                        }
-                        className="px-3 py-2 font-bold rounded-md bg-green-600 text-white hover:bg-green-700 cursor-pointer w-max"
-                      >
-                        Yes, Accepted
+                    <>
+                      <div className="flex flex-row items-center justify-between gap-2 w-full">
+                        <select
+                          className="w-full px-3 py-2 rounded-md bg-gray-100"
+                          value={this.state.selectedStatus}
+                          onChange={(e) =>
+                            this.setState({
+                              selectedStatus: e.target
+                                .value as ApplicationDocIsCorrect,
+                            })
+                          }
+                        >
+                          {[
+                            ApplicationDocIsCorrect.VALID,
+                            ApplicationDocIsCorrect.PNC,
+                            ApplicationDocIsCorrect.PC,
+                            ApplicationDocIsCorrect.NA,
+                            ApplicationDocIsCorrect.INVALID,
+                          ].map((doc, d) => (
+                            <option key={d + 1} value={doc}>
+                              {GetDocStatus(doc)}
+                            </option>
+                          ))}
+                        </select>
+                        <div
+                          onClick={() => this.UpdateDocumentStatus()}
+                          className="px-3 py-2 font-bold rounded-md bg-green-600 text-white hover:bg-green-700 cursor-pointer w-max"
+                        >
+                          Validate
+                        </div>
                       </div>
-                      <div
-                        onClick={() =>
-                          this.UpdateDocumentStatus(
-                            ApplicationDocIsCorrect.INVALID
-                          )
-                        }
-                        className="px-3 py-2 font-bold rounded-md bg-red-600 text-white hover:bg-red-800 cursor-pointer w-max"
-                      >
-                        No, Rejected
-                      </div>
-                    </div>
+                    </>
                   ) : this.SelectedDocument() !== null &&
                     this.SelectedDocument()!.is_correct ===
                       ApplicationDocIsCorrect.VALID ? (

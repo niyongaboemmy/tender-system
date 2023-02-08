@@ -49,7 +49,25 @@ export enum ApplicationDecisionEnum {
 export enum ApplicationDocIsCorrect {
   VALID = "VALID",
   INVALID = "INVALID",
+  PC = "PC",
+  PNC = "PNC",
+  NA = "NA",
 }
+
+export const GetDocStatus = (status: ApplicationDocIsCorrect) => {
+  switch (status) {
+    case ApplicationDocIsCorrect.INVALID:
+      return "Invalid document";
+    case ApplicationDocIsCorrect.VALID:
+      return "Valid document";
+    case ApplicationDocIsCorrect.PC:
+      return "PC document";
+    case ApplicationDocIsCorrect.PNC:
+      return "PNC document";
+    case ApplicationDocIsCorrect.NA:
+      return "NA document";
+  }
+};
 
 export enum UserAllowedTender {
   PUBLIC = "PUBLIC",

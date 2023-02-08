@@ -99,7 +99,9 @@ export interface TenderSubmissionsListInterface {
   status: ApplicationStatus;
   closing_date: string;
   bid_document: string;
+  financial_amount: number | null;
   documents: TenderDocumentsSubmissionsListInterface[];
+  decision: ApplicationDecisionEnum | null;
 }
 
 export const FC_GetTenderApplicationsToBeValidated = async (
@@ -176,7 +178,7 @@ export const FC_SaveApplicationDecision = async (
     const res = await axios.patch(`${API_URL}/application/decision`, data);
     console.log("Res: ", res);
     if (res) {
-      callBack(false, { type: "success", msg: "" });
+      callBack(false, { type: "success", msg: "Status updated" });
     }
   } catch (error: any) {
     console.log("Err: ", { ...error });
@@ -236,5 +238,32 @@ export const FC_GetTenderSubmissions = async (
   } catch (error: any) {
     console.log("Err: ", { ...error });
     callBack(false, { type: "error", msg: errorToText(error), data: [] });
+  }
+};
+
+export const FC_SetApplicationFinancialBudget = async (
+  data: {
+    application_id: string;
+    financial_amount: string;
+  },
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.patch(`${API_URL}/application/financial`, data);
+    console.log("Res: ", res);
+    if (res) {
+      callBack(false, { type: "success", msg: "Updated successfully" });
+    }
+  } catch (error: any) {
+    console.log("Err: ", { ...error });
+    callBack(false, { type: "error", msg: errorToText(error) });
   }
 };

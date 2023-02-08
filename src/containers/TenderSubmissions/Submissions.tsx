@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { BsInfoCircle } from "react-icons/bs";
 import { HiArrowSmLeft } from "react-icons/hi";
-import { RiArrowDropDownLine } from "react-icons/ri";
-import { ApplicationDocIsCorrect, BooleanEnum } from "../../actions";
+import {
+  ApplicationDecisionEnum,
+  ApplicationDocIsCorrect,
+  BooleanEnum,
+  DocFolder,
+} from "../../actions";
 import {
   RequiredDocumentSummary,
   TenderForValidationInterface,
@@ -14,7 +17,12 @@ import {
   TenderSubmissionsListInterface,
 } from "../../actions/validate-tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
+import PdfViewer from "../../components/PdfViewer/PdfViewer";
+import { API_URL } from "../../utils/api";
 import { commaFy, search } from "../../utils/functions";
+import { CompaniesRanking } from "./CompaniesRanking";
+import { SetAmountBudget } from "./SetAmountBudget";
+import { UpdateCompanyDecision } from "./UpdateCompanyDecision";
 
 interface SubmissionsProps {
   tenderSummaryDetails: TenderForValidationInterface;
@@ -26,6 +34,24 @@ interface SubmissionsState {
   loading: boolean;
   error: string;
   data: TenderSubmissionsListInterface[] | null;
+  selectedFinancialAmount: {
+    application_id: string;
+    amount: string;
+  } | null;
+  addingFinancial: boolean;
+  addingFinancialError: {
+    application_id: string;
+    msg: string;
+  } | null;
+  addingFinancialSuccess: {
+    application_id: string;
+    msg: string;
+  } | null;
+  selectedDocumentPreview: {
+    application_id: string;
+    document_id: string;
+    document: string;
+  } | null;
 }
 
 export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
@@ -37,6 +63,11 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
       loading: false,
       error: "",
       data: null,
+      selectedFinancialAmount: null,
+      addingFinancial: false,
+      addingFinancialError: null,
+      addingFinancialSuccess: null,
+      selectedDocumentPreview: null,
     };
   }
 
@@ -63,22 +94,20 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
     );
   };
 
-  GetTotalDocuments = (): number => {
-    var total: number = 0;
-    for (const item of this.props.tenderSummaryDetails.required_documents) {
-      total += item.total_document;
+  GetTotalSubmissions = (): number => {
+    if (this.state.data === null) {
+      return 0;
     }
-    return total;
+    return this.state.data.length;
   };
   GetTotalValidate = (): number => {
-    var total: number = 0;
-    for (const item of this.props.tenderSummaryDetails.required_documents) {
-      total += item.total_validated;
+    if (this.state.data === null) {
+      return 0;
     }
-    return total;
+    return this.state.data.filter((itm) => itm.decision !== null).length;
   };
   GetTotalWaiting = (): number => {
-    return this.GetTotalDocuments() - this.GetTotalValidate();
+    return this.GetTotalSubmissions() - this.GetTotalValidate();
   };
 
   GetTenderCompanyDocument = (
@@ -89,13 +118,32 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
     return response === undefined ? null : response;
   };
 
-  GetNotValidateDocuments = (
-    data: TenderDocumentsSubmissionsListInterface[]
+  UpdateFinancialAmount = (application_id: string, amount: string) => {
+    if (this.state.data !== null) {
+      this.setState({
+        data: this.state.data.map((item) => ({
+          ...item,
+          financial_amount:
+            item.application_id === application_id
+              ? parseInt(amount)
+              : item.financial_amount,
+        })),
+      });
+    }
+  };
+  UpdateTenderApplicationStatus = (
+    application_id: string,
+    decision: ApplicationDecisionEnum
   ) => {
-    return data.filter(
-      (itm) =>
-        itm.is_validated === null || itm.is_validated === BooleanEnum.FALSE
-    );
+    if (this.state.data !== null) {
+      this.setState({
+        data: this.state.data.map((item) => ({
+          ...item,
+          decision:
+            item.application_id === application_id ? decision : item.decision,
+        })),
+      });
+    }
   };
 
   componentDidMount = () => {
@@ -128,20 +176,132 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
     }
     if (data.is_correct === ApplicationDocIsCorrect.INVALID) {
       return (
-        <div className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-md w-max">
-          Rejected
+        <div
+          onClick={() =>
+            this.setState({
+              selectedDocumentPreview: {
+                application_id: data.application_id,
+                document_id: data.document_id,
+                document: data.doc,
+              },
+            })
+          }
+          className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-md w-max cursor-pointer hover:bg-red-100"
+        >
+          {data.is_correct}
+        </div>
+      );
+    }
+    if (data.is_correct === ApplicationDocIsCorrect.NA) {
+      return (
+        <div
+          onClick={() =>
+            this.setState({
+              selectedDocumentPreview: {
+                application_id: data.application_id,
+                document_id: data.document_id,
+                document: data.doc,
+              },
+            })
+          }
+          className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-md w-max cursor-pointer hover:bg-red-100"
+        >
+          {data.is_correct}
+        </div>
+      );
+    }
+    if (data.is_correct === ApplicationDocIsCorrect.VALID) {
+      return (
+        <div
+          onClick={() =>
+            this.setState({
+              selectedDocumentPreview: {
+                application_id: data.application_id,
+                document_id: data.document_id,
+                document: data.doc,
+              },
+            })
+          }
+          className="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-md w-max cursor-pointer hover:bg-green-100"
+        >
+          {data.is_correct}
         </div>
       );
     }
     return (
-      <div className="bg-green-50 text-green-700 text-xs px-2 py-1 rounded-md w-max">
-        Accepted
+      <div
+        onClick={() =>
+          this.setState({
+            selectedDocumentPreview: {
+              application_id: data.application_id,
+              document_id: data.document_id,
+              document: data.doc,
+            },
+          })
+        }
+        className="bg-gray-100 text-black text-xs px-2 py-1 rounded-md w-max cursor-pointer hover:bg-gray-200"
+      >
+        {data.is_correct}
       </div>
     );
   };
   render() {
+    if (this.state.selectedDocumentPreview !== null) {
+      return (
+        <div
+          style={{ height: "calc(100vh - 80px)", overflowY: "auto" }}
+          className="relative animate__animated animate__fadeIn"
+        >
+          <div className="flex flex-row items-center gap-2 p-2">
+            <div
+              onClick={() => this.setState({ selectedDocumentPreview: null })}
+              className="bg-yellow-600 text-white hover:bg-yellow-800 px-3 py-2 rounded-md text-sm font-bold cursor-pointer"
+            >
+              Go Back
+            </div>
+            <div>
+              <div className="font-bold">
+                {
+                  this.props.tenderSummaryDetails.required_documents.find(
+                    (itm) =>
+                      itm.document_id ===
+                      this.state.selectedDocumentPreview?.document_id
+                  )?.title
+                }
+              </div>
+              <div className="text-sm text-yellow-800 font-bold bg-yellow-100 w-max px-2 py-1 rounded-full">
+                Company:{" "}
+                {
+                  this.state.data?.find(
+                    (itm) =>
+                      itm.application_id ===
+                      this.state.selectedDocumentPreview?.application_id
+                  )?.compony_name
+                }
+              </div>
+            </div>
+          </div>
+          <div className="h-screen bg-gray-600">
+            <PdfViewer
+              file_url={`${API_URL}/docs/${DocFolder.other}/${this.state.selectedDocumentPreview.document}`}
+              class_name={"h-screen w-full"}
+              frame_title={""}
+              setLoadingFile={(state: boolean) =>
+                this.setState({ loading: state })
+              }
+            />
+          </div>
+          <div
+            onClick={() => this.setState({ selectedDocumentPreview: null })}
+            className="absolute bottom-3 right-3 bg-primary-800 text-white hover:bg-primary-900 px-3 py-2 font-bold w-max cursor-pointer rounded-md animate__animated animate__bounceInUp animate__slower"
+          >
+            Yes, Continue
+          </div>
+        </div>
+      );
+    }
     return (
-      <div>
+      <div className="animate__animated animate__fadeIn">
         <div>
           <div className="p-2 bg-primary-800  flex flex-row items-center justify-between gap-3">
             <div className="flex flex-row items-center gap-3 w-full truncate">
@@ -171,10 +331,10 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
               <div className="flex flex-row items-center justify-end gap-2">
                 <div className="flex flex-col items-center justify-center text-center bg-primary-750 text-white p-1 px-4 rounded-md border border-blue-400">
                   <div className="text-xs font-light w-full text-white truncate">
-                    Total Docs
+                    Submissions
                   </div>
                   <div className="text-lg font-extrabold -mt-1 w-full text-white">
-                    {commaFy(this.GetTotalDocuments())}
+                    {commaFy(this.GetTotalSubmissions())}
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center bg-primary-750 text-white p-1 px-4 rounded-md border border-blue-400">
@@ -264,10 +424,7 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
                         this.state.searchValue
                       ) as RequiredDocumentSummary[]
                     ).map((item, i) => (
-                      <tr
-                        key={i + 1}
-                        className={`group hover:text-primary-900`}
-                      >
+                      <tr key={i + 1} className={`group`}>
                         <td className="px-3 py-2 border w-5">{i + 1}</td>
                         <td className="px-3 py-2 border">{item.title}</td>
                         {this.state.data !== null &&
@@ -284,37 +441,36 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
                       </tr>
                     ))}
                     <tr>
-                      <td colSpan={2} className="px-3 py-2">
-                        {/* <div className="text-xl font-bold">
-                          Validate company
-                        </div> */}
+                      <td className="px-3 py-2 border">
+                        {this.props.tenderSummaryDetails.required_documents
+                          .length + 1}
+                      </td>
+                      <td className="px-3 py-2 border">
+                        <div className="text-base font-bold text-primary-900">
+                          Company Financial amount
+                        </div>
                       </td>
                       {this.state.data.map((company, c) => (
+                        <td key={c + 1} className="px-1 py-1 border w-10">
+                          {/*  */}
+                          <SetAmountBudget
+                            selectedTenderSubmission={company}
+                            onUpdateBudge={this.UpdateFinancialAmount}
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <td colSpan={2} className="px-3 py-2"></td>
+                      {this.state.data.map((company, c) => (
                         <td key={c + 1} className="px-2 py-2 border w-10">
-                          {console.log("Test not validated: ", {
-                            notValidated: this.GetNotValidateDocuments(
-                              company.documents
-                            ),
-                            allDocs: company.documents,
-                          })}
-                          {this.GetNotValidateDocuments(company.documents)
-                            .length === 0 ? (
-                            <div className="border border-primary-700 hover:border-primary-800 text-primary-900 hover:bg-primary-800 hover:text-white px-3 py-1 pr-2 text-sm font-bold rounded w-max flex flex-row items-center justify-center gap-2 cursor-pointer">
-                              <span>Validate</span>
-                              <div>
-                                <RiArrowDropDownLine className="text-2xl" />
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-sm text-yellow-600 flex flex-row items-center gap-1 py-1">
-                              <div>
-                                <BsInfoCircle className="text-xl" />
-                              </div>
-                              <span className="text-black truncate">
-                                Validate all docs
-                              </span>
-                            </div>
-                          )}
+                          {/*  */}
+                          <UpdateCompanyDecision
+                            selectedTenderSubmission={company}
+                            onUpdateDecision={
+                              this.UpdateTenderApplicationStatus
+                            }
+                          />
                         </td>
                       ))}
                     </tr>
@@ -323,6 +479,25 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
               </div>
             )}
           </div>
+        )}
+        {/* Tenders ranking */}
+        {this.state.data !== null && (
+          <CompaniesRanking
+            selectedTenderSubmissions={this.state.data
+              .filter(
+                (itm) =>
+                  itm.decision === ApplicationDecisionEnum.PASS &&
+                  itm.financial_amount !== null &&
+                  itm.financial_amount !== 0
+              )
+              .sort((a, b) => {
+                const small =
+                  a.financial_amount === null ? 0 : a.financial_amount;
+                const big =
+                  b.financial_amount === null ? 0 : b.financial_amount;
+                return small - big;
+              })}
+          />
         )}
       </div>
     );

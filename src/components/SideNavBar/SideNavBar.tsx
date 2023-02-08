@@ -4,7 +4,11 @@ import { AiOutlineAppstoreAdd, AiOutlineDashboard } from "react-icons/ai";
 import { BsFileEarmarkPdf } from "react-icons/bs";
 import { FaUserCircle, FaVoteYea } from "react-icons/fa";
 import { HiOutlineBriefcase } from "react-icons/hi";
-import { MdClose, MdOutlineAddReaction } from "react-icons/md";
+import {
+  MdAdminPanelSettings,
+  MdClose,
+  MdOutlineAddReaction,
+} from "react-icons/md";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
 import { Auth, UserType } from "../../actions";
@@ -88,6 +92,13 @@ export class SideNavBar extends Component<SideNavBarProps, SideNavBarState> {
         path: "/applications",
         icon: HiOutlineBriefcase,
         userType: UserType.BIDER,
+      },
+      {
+        key: MENU_TYPE.ACTIVITIES,
+        title: "Private bidders",
+        path: "/users-by-tender-visibility",
+        icon: MdAdminPanelSettings,
+        userType: UserType.HOLDER,
       },
     ];
     const baseClass =

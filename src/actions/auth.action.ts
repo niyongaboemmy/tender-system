@@ -406,3 +406,75 @@ export const FC_UpdateUserCompanyDetails = async (
     callBack(false, { type: "error", msg: errorToText(error) });
   }
 };
+
+export const FC_GetUsersByTenderVisibility = async (
+  visibility: TenderVisibility,
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+      data: API_GetUsersDetails[];
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.get<API_GetUsersDetails[]>(
+      `${API_URL}/user/allowed/tender/${visibility}`
+    );
+    callBack(false, { type: "success", msg: "", data: res.data });
+  } catch (error: any) {
+    callBack(false, { type: "error", msg: errorToText(error), data: [] });
+  }
+};
+
+export const FC_GetUserByKeyword = async (
+  keyword: string,
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+      data: API_GetUsersDetails[];
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    const res = await axios.get<API_GetUsersDetails[]>(
+      `${API_URL}/user/search/${keyword}`
+    );
+    callBack(false, { type: "success", msg: "", data: res.data });
+  } catch (error: any) {
+    callBack(false, { type: "error", msg: errorToText(error), data: [] });
+  }
+};
+
+export const FC_SetUserTendersVisibility = async (
+  data: {
+    user_id: string;
+    allowed_tender: TenderVisibility;
+  },
+  callBack: (
+    loading: boolean,
+    res: {
+      type: "success" | "error";
+      msg: string;
+    } | null
+  ) => void
+) => {
+  callBack(true, null);
+  setAxiosToken();
+  try {
+    await axios.post(`${API_URL}/user/allowed/tender`, data);
+    callBack(false, {
+      type: "success",
+      msg: "User tenders accessibility status has changed successfully!",
+    });
+  } catch (error: any) {
+    callBack(false, { type: "error", msg: errorToText(error) });
+  }
+};

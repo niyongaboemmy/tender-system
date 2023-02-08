@@ -105,6 +105,14 @@ const TenderSubmissions = lazy(() =>
   )
 );
 
+const UsersByTenderVisibility = lazy(() =>
+  import("./containers/UsersByTenderVisibility/UsersByTenderVisibility").then(
+    ({ UsersByTenderVisibility }) => ({
+      default: UsersByTenderVisibility,
+    })
+  )
+);
+
 //* Interfaces
 // props for the component
 interface AppProps {
@@ -307,6 +315,16 @@ class _App extends React.Component<AppProps, AppState> {
                         <ProtectedRoute
                           path="/tender-submissions-validation/:tender_id"
                           component={TenderSubmissions}
+                          isAuthenticated={this.props.auth.isAuthenticated}
+                          authenticationPath={authenticationPath}
+                          loading={this.state.loading}
+                          exact
+                        />
+                      )}
+                      {this.props.auth.user?.type === UserType.HOLDER && (
+                        <ProtectedRoute
+                          path="/users-by-tender-visibility"
+                          component={UsersByTenderVisibility}
                           isAuthenticated={this.props.auth.isAuthenticated}
                           authenticationPath={authenticationPath}
                           loading={this.state.loading}
