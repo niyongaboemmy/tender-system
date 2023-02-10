@@ -10,7 +10,6 @@ import {
   BooleanEnum,
   System,
 } from "../../actions";
-import { FcExpired } from "react-icons/fc";
 import {
   DocumentValidatedInterface,
   FC_GetTenderApplicationsToBeValidated,
@@ -24,6 +23,7 @@ import Modal, { ModalSize, Themes } from "../../components/Modal/Modal";
 import { StoreState } from "../../reducers";
 import { DateTimeToString, search } from "../../utils/functions";
 import { DocumentValidation } from "./DocumentValidation";
+import { AiFillLock } from "react-icons/ai";
 
 interface ValidateApplicationDocumentProps
   extends RouteComponentProps<{
@@ -170,20 +170,20 @@ class _ValidateApplicationDocument extends Component<
     if (this.state.error !== "") {
       return (
         <div>
-          <div className="flex flex-col items-center w-full bg-red-100 rounded-md p-4 py-8 border border-red-200 text-center">
+          <div className="flex flex-col items-center w-full bg-yellow-100 rounded-md p-4 py-8 border border-yellow-400 text-center">
             <div className="mb-3">
-              <FcExpired className="text-red-700 text-9xl animate__animated animate__fadeIn animate__infinite animate__slower" />
+              <AiFillLock className="text-yellow-700 text-9xl animate__animated animate__fadeIn animate__slower" />
             </div>
-            <div className="text-3xl font-bold">Document can not be opened</div>
             {this.props.match.params.document_title !== undefined && (
-              <div className="my-2 text-primary-750 font-semibold">
+              <div className="text-xl font-bold">
                 {this.props.match.params.document_title}
               </div>
             )}
-            <div className="text-sm">
-              Time to open this document is not yet reached
+            <div className="mt-4 text-2xl font-light text-yellow-700">
+              This Document cannot be open at this time
             </div>
-            <div className="mt-3 text-2xl text-primary-750 font-bold">
+            <div className="text-base">Wait for the opening day and time</div>
+            <div className="mt-3 text-2xl text-yellow-700 font-bold">
               {this.props.match.params.opening_time !== undefined &&
                 DateTimeToString(this.props.match.params.opening_time)}
             </div>
