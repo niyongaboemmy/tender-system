@@ -10,6 +10,7 @@ import {
   BooleanEnum,
   System,
 } from "../../actions";
+import { FcExpired } from "react-icons/fc";
 import {
   DocumentValidatedInterface,
   FC_GetTenderApplicationsToBeValidated,
@@ -28,6 +29,8 @@ interface ValidateApplicationDocumentProps
   extends RouteComponentProps<{
     tender_id: string | undefined;
     document_id: string | undefined;
+    opening_time: string | undefined;
+    document_title: string | undefined;
   }> {}
 interface ValidateApplicationDocumentState {
   loading: boolean;
@@ -164,6 +167,51 @@ class _ValidateApplicationDocument extends Component<
     return iteration;
   };
   render() {
+    if (this.state.error !== "") {
+      return (
+        <div>
+          <div className="flex flex-col items-center w-full bg-red-100 rounded-md p-4 py-8 border border-red-200 text-center">
+            <div className="mb-3">
+              <FcExpired className="text-red-700 text-9xl animate__animated animate__fadeIn animate__infinite animate__slower" />
+            </div>
+            <div className="text-3xl font-bold">Document can not be opened</div>
+            {this.props.match.params.document_title !== undefined && (
+              <div className="my-2 text-primary-750 font-semibold">
+                {this.props.match.params.document_title}
+              </div>
+            )}
+            <div className="text-sm">
+              Time to open this document is not yet reached
+            </div>
+            <div className="mt-3 text-2xl text-primary-750 font-bold">
+              {this.props.match.params.opening_time !== undefined &&
+                DateTimeToString(this.props.match.params.opening_time)}
+            </div>
+            <div className="flex flex-row items-center justify-center gap-2">
+              <Link
+                to={`/tender-docs-validation/${this.props.match.params.tender_id}`}
+                className="flex flex-row items-center justify-center gap-2 w-max px-3 py-2 pl-2 text-base font-bold cursor-pointer bg-white text-gray-900 hover:bg-primary-800 hover:text-white mt-5 rounded border border-white group"
+              >
+                <div>
+                  <HiArrowSmLeft className="text-primary-800 group-hover:text-white text-2xl" />
+                </div>
+                <span>No, Go Back</span>
+              </Link>
+              <div
+                onClick={() => {
+                  this.setState({ error: "" });
+                  this.GetApplicantsList();
+                }}
+                className="flex flex-row items-center justify-center w-max px-3 py-2 text-base font-bold cursor-pointer bg-green-600 text-white hover:bg-green-700 mt-5 rounded"
+              >
+                If it's time, Refresh page
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (this.state.data === null || this.state.loading === true) {
       return (
         <MainContainer className="py-4">

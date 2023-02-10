@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import { BsFileEarmarkPdf } from "react-icons/bs";
-import { BooleanEnum, DocFolder, System } from "../../actions";
+import {
+  BooleanEnum,
+  DocFolder,
+  System,
+  TenderVisibility,
+} from "../../actions";
 import {
   GetTenderOfferInterface,
   RequiredDocumentInterface,
@@ -43,6 +48,20 @@ export class TenderDetails extends Component<
             <div className="flex flex-col text-sm">
               <span className="text-sm text-gray-500">Tender category</span>
               <span>{this.props.tender.category}</span>
+            </div>
+            <div className="flex flex-col text-sm mt-4">
+              <span className="text-sm text-gray-500">Tender visibility</span>
+              <span>
+                {this.props.tender.visibility === TenderVisibility.PRIVATE ? (
+                  <span className="bg-yellow-100 text-yellow-800 px-2 rounded-full font-bold text-base">
+                    Private
+                  </span>
+                ) : (
+                  <span className="bg-primary-50 text-primary-900 px-2 rounded-full font-bold text-base">
+                    Public
+                  </span>
+                )}
+              </span>
             </div>
           </div>
           <div className="col-span-12 md:col-span-4 lg:col-span-3">
@@ -117,7 +136,7 @@ export class TenderDetails extends Component<
                   <div
                     key={i + 1}
                     className="bg-gray-50 flex flex-row items-center gap-2 rounded-md p-2 mb-2 cursor-pointer hover:bg-primary-50 hover:text-primary-900 group"
-                    onClick={() => this.props.onSelectDocument(item)}
+                    // onClick={() => this.props.onSelectDocument(item)}
                   >
                     <div className="flex flex-row items-center gap-2 w-full">
                       <div>
@@ -152,11 +171,11 @@ export class TenderDetails extends Component<
                         </div>
                       </div>
                     </div>
-                    <div>
+                    {/* <div>
                       <div className="px-3 py-2 rounded-md bg-white w-max text-sm font-bold group-hover:bg-primary-800 group-hover:text-white cursor-pointer">
                         Validate
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 ))}
               </div>

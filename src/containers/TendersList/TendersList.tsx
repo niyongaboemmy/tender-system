@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import { BsFileMedicalFill } from "react-icons/bs";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
-import { Auth, System } from "../../actions";
+import { Auth, System, TenderVisibility } from "../../actions";
 import {
   FC_GetTendersOffers,
   GetTenderOfferInterface,
@@ -79,7 +79,7 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
     ) {
       return (
         <Redirect
-          to={`/validate-application-document/${this.state.selectedTender.tender_id}/${this.state.selectedDocument.document_id}`}
+          to={`/validate-application-document/${this.state.selectedTender.tender_id}/${this.state.selectedDocument.document_id}/${this.state.selectedDocument.opening_date}`}
         />
       );
     }
@@ -159,6 +159,7 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
                           <th className="px-3 py-2 border">Level</th>
                           <th className="px-3 py-2 border">Publication date</th>
                           <th className="px-3 py-2 border">Closing date</th>
+                          <th className="px-3 py-2 border">Visibility</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -188,6 +189,17 @@ class _TendersList extends Component<TendersListProps, TendersListState> {
                             </td>
                             <td className="px-3 py-2 border">
                               {DateTimeToString(item.closing_date)}
+                            </td>
+                            <td className="px-3 py-2 border">
+                              {item.visibility === TenderVisibility.PRIVATE ? (
+                                <span className="bg-yellow-100 text-yellow-800 px-2 rounded-full text-sm font-bold">
+                                  Private
+                                </span>
+                              ) : (
+                                <span className="bg-gray-50 px-2 rounded-full text-sm font-bold">
+                                  Public
+                                </span>
+                              )}
                             </td>
                           </tr>
                         ))}

@@ -50,6 +50,7 @@ interface BidderApplicationDetailsState {
   submitting: boolean;
   addingDocument: boolean;
   removingDoc: string;
+  viewHowToConvert: boolean;
 }
 
 export class BidderApplicationDetails extends Component<
@@ -70,6 +71,7 @@ export class BidderApplicationDetails extends Component<
       selectedDocumentPreview: null,
       addingDocument: false,
       removingDoc: "",
+      viewHowToConvert: false,
     };
   }
   FindDocument = (document_id: string) => {
@@ -327,19 +329,66 @@ export class BidderApplicationDetails extends Component<
             )}
             <div className="col-span-12">
               <div className="flex flex-col text-sm">
-                <div className="flex flex-row items-center justify-between gap-2 mb-4">
-                  <div className="flex flex-row items-center gap-2">
-                    <span className="text-base text-gray-800 font-bold">
-                      Required documents
-                    </span>
-                    <div className="text-yellow-800 flex flex-row items-center gap-1 bg-yellow-50 p-1 px-2 pl-1 rounded-md">
-                      <div>
-                        <RiErrorWarningFill className="text-2xl animate__animated animate__zoomIn animate__infinite" />
+                <div className="mb-4">
+                  <div className="flex flex-row items-center justify-between gap-2">
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="text-lg text-gray-800 font-bold">
+                        Required documents
+                      </span>
+                      <div
+                        onClick={() =>
+                          this.setState({ viewHowToConvert: true })
+                        }
+                        className="text-yellow-800 flex flex-row items-center gap-1 bg-yellow-50 hover:bg-yellow-100 p-1 px-2 pl-1 rounded-md cursor-pointer"
+                      >
+                        <div>
+                          <RiErrorWarningFill className="text-2xl animate__animated animate__zoomIn animate__infinite" />
+                        </div>
+                        <div className="font-bold">PDF only, View guide</div>
                       </div>
-                      <div className="font-bold">PDF only</div>
                     </div>
                   </div>
-                  <div></div>
+                  {this.state.viewHowToConvert === true && (
+                    <div className="mt-2 bg-gray-100 p-3 pl-6 text-left rounded-md animate__animated animate__zoomIn animate__fast">
+                      <div className="flex flex-row items-center justify-between gap-2">
+                        <div className="text-green-700 text-lg font-bold">
+                          Steps to convert Word to PDF
+                        </div>
+                        <div>
+                          <div
+                            onClick={() =>
+                              this.setState({ viewHowToConvert: false })
+                            }
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm w-max cursor-pointer"
+                          >
+                            Close
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-sm text-gray-800">
+                        <div className="flex flex-row items-center gap-2 mb-2">
+                          <div className="h-7 w-7 rounded-full bg-gray-500 text-white flex items-center justify-center font-bold">
+                            1
+                          </div>
+                          <div>Open word document and click on File</div>
+                        </div>
+                        <div className="flex flex-row items-center gap-2 mb-2">
+                          <div className="h-7 w-7 rounded-full bg-gray-500 text-white flex items-center justify-center font-bold">
+                            2
+                          </div>
+                          <div>Click on Save as</div>
+                        </div>
+                        <div className="flex flex-row items-center gap-2 mb-2">
+                          <div className="h-7 w-7 rounded-full bg-gray-500 text-white flex items-center justify-center font-bold">
+                            3
+                          </div>
+                          <div>
+                            From File Format, Choose PDF, and Click save
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {this.props.application.required_document.map((item, i) => (
                   <div

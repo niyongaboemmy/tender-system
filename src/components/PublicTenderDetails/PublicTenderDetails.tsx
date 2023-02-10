@@ -1,7 +1,14 @@
 import React, { Component } from "react";
 import { BsArrowLeft, BsFileEarmarkPdf } from "react-icons/bs";
 import { IoIosSend } from "react-icons/io";
-import { BooleanEnum, DocFolder, System } from "../../actions";
+import { Redirect } from "react-router";
+import {
+  Auth,
+  BooleanEnum,
+  DocFolder,
+  System,
+  TenderVisibility,
+} from "../../actions";
 import { TenderOfferForBiddersInterface } from "../../actions/tender.action";
 import { API_URL } from "../../utils/api";
 import { DateTimeToString } from "../../utils/functions";
@@ -11,6 +18,7 @@ import PdfViewer from "../PdfViewer/PdfViewer";
 interface PublicTenderDetailsProps {
   tender: TenderOfferForBiddersInterface;
   system: System;
+  auth: Auth;
   onClose: () => void;
   apply: (tender: TenderOfferForBiddersInterface) => void;
 }
@@ -32,6 +40,16 @@ export class PublicTenderDetails extends Component<
     };
   }
   render() {
+    if (
+      (this.props.auth.isAuthenticated === false &&
+        this.props.tender.visibility === TenderVisibility.PRIVATE) ||
+      (this.props.auth.isAuthenticated === true &&
+        this.props.auth.user !== null &&
+        this.props.auth.user.allowed_tender === TenderVisibility.PUBLIC &&
+        this.props.tender.visibility === TenderVisibility.PRIVATE)
+    ) {
+      return <Redirect to={"/"} />;
+    }
     return (
       <div className="bg-white p-5 rounded-md">
         <div className="grid grid-cols-12 gap-4">
@@ -195,15 +213,22 @@ export class PublicTenderDetails extends Component<
             </div>
           </div>
         </div>
-        <div
-          onClick={() => this.props.apply(this.props.tender)}
-          className="fixed bottom-4 right-4 cursor-pointer bg-green-600 text-white px-3 py-2 hover:bg-green-700 rounded-md flex flex-row items-center justify-center gap-2"
-        >
-          <div>
-            <IoIosSend className="text-xl" />
+        {this.props.auth.isAuthenticated === true &&
+        this.props.auth.user !== null &&
+        this.props.auth.user.allowed_tender === TenderVisibility.PUBLIC &&
+        this.props.tender.visibility === TenderVisibility.PRIVATE ? (
+          <div></div>
+        ) : (
+          <div
+            onClick={() => this.props.apply(this.props.tender)}
+            className="fixed bottom-4 right-4 cursor-pointer bg-green-600 text-white px-3 py-2 hover:bg-green-700 rounded-md flex flex-row items-center justify-center gap-2"
+          >
+            <div>
+              <IoIosSend className="text-xl" />
+            </div>
+            <span className="font-bold">Apply now</span>
           </div>
-          <span className="font-bold">Apply now</span>
-        </div>
+        )}
       </div>
     );
   }

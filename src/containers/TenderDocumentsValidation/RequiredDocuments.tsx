@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import { HiArrowSmLeft } from "react-icons/hi";
+import { DocumentType } from "../../actions";
 import {
   RequiredDocumentSummary,
   TenderForValidationInterface,
 } from "../../actions/tender.action";
+import ExportToExcel from "../../components/GenerateReport/ExportToExcel";
 import { commaFy, DateTimeToString, search } from "../../utils/functions";
 
 interface RequiredDocumentsProps {
@@ -99,13 +101,33 @@ export class RequiredDocuments extends Component<
         </div>
         {/* Details */}
         <div className="mt-2 p-3">
-          <div className="mb-4">
+          <div className="mb-4 flex flex-row items-center gap-2 w-full">
             <input
               type="search"
               className="bg-gray-100 rounded-md text-sm px-4 py-3 w-full"
               value={this.state.searchValue}
               onChange={(e) => this.setState({ searchValue: e.target.value })}
               placeholder="Search by name"
+            />
+            <ExportToExcel
+              fileData={(
+                search(
+                  this.props.tenderSummaryDetails.required_documents,
+                  this.state.searchValue
+                ) as RequiredDocumentSummary[]
+              ).map((item, i) => ({
+                No: i + 1,
+                DocumentName: item.title,
+                DocumentCategory: item.type,
+                OpeningDate: DateTimeToString(item.opening_date),
+                TotalSubmissions: item.total_document,
+                TotalValidated: item.total_validated,
+                TotalWaiting: item.total_document - item.total_validated,
+              }))}
+              fileName={`${
+                this.props.tenderSummaryDetails.tender_name
+              } documents validation report - ${new Date().toDateString()}`}
+              btnName="Export Excel"
             />
           </div>
           {this.props.tenderSummaryDetails.required_documents.length === 0 ? (
@@ -126,6 +148,7 @@ export class RequiredDocuments extends Component<
               <thead>
                 <tr>
                   <th className="px-3 py-2 border">#</th>
+                  <th className="px-3 py-2 border">Category</th>
                   <th className="px-3 py-2 border">Document name</th>
                   <th className="px-3 py-2 border text-center">Opening date</th>
                   <th className="px-2 py-2 border text-center">Submissions</th>
@@ -147,6 +170,12 @@ export class RequiredDocuments extends Component<
                     onClick={() => this.props.onOpenDocument(item.document_id)}
                   >
                     <td className="px-3 py-2 border">{i + 1}</td>
+                    <td className="px-3 py-2 border">
+                      {item.type === DocumentType.ADMIN
+                        ? "ADMINISTRATIVE"
+                        : item.type}{" "}
+                      Document
+                    </td>
                     <td className="px-3 py-2 border">{item.title}</td>
                     <td className="px-2 py-2 border text-xs text-center truncate">
                       {DateTimeToString(item.opening_date)}

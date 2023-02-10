@@ -5,9 +5,11 @@ import {
   ApplicationDocIsCorrect,
   BooleanEnum,
   DocFolder,
+  DocumentType,
   GetDocStatus,
 } from "../../actions";
 import {
+  FC_SetApplicationFinancialBudget,
   FC_UpdateDocumentDecision,
   GetApplicationForValidation,
   RequiredDocumentForValidation,
@@ -28,6 +30,7 @@ interface DocumentValidationState {
   error: string;
   success: string;
   selectedStatus: ApplicationDocIsCorrect;
+  amount: string;
 }
 
 export class DocumentValidation extends Component<
@@ -43,6 +46,7 @@ export class DocumentValidation extends Component<
       error: "",
       success: "",
       selectedStatus: ApplicationDocIsCorrect.VALID,
+      amount: "",
     };
   }
   SelectedDocument = () => {
@@ -53,6 +57,39 @@ export class DocumentValidation extends Component<
       return response;
     }
     return null;
+  };
+  ValidateDocument = (selectedStatus: ApplicationDocIsCorrect) => {
+    this.SelectedDocument() !== null &&
+      FC_UpdateDocumentDecision(
+        {
+          application_document_id:
+            this.SelectedDocument()!.application_document_id,
+          is_correct: selectedStatus,
+          comment: this.state.validation_comment,
+        },
+        (
+          loading: boolean,
+          res: {
+            type: "success" | "error";
+            msg: string;
+          } | null
+        ) => {
+          this.setState({ loading: loading });
+          if (res?.type === "success") {
+            this.setState({
+              success: "Status added successfully!",
+              loading: false,
+              error: "",
+            });
+            setTimeout(() => {
+              this.props.onSubmitUpdate();
+            }, 2000);
+          }
+          if (res?.type === "error") {
+            this.setState({ error: res.msg, success: "", loading: false });
+          }
+        }
+      );
   };
   UpdateDocumentStatus = () => {
     const selectedStatus = this.state.selectedStatus;
@@ -71,13 +108,15 @@ export class DocumentValidation extends Component<
       }
       //   Submit
       this.setState({ loading: true });
-      this.SelectedDocument() !== null &&
-        FC_UpdateDocumentDecision(
+      // Update financial amount
+      if (
+        this.state.amount !== "" &&
+        this.props.selectedDocument?.type === DocumentType.FINANCIAL
+      ) {
+        FC_SetApplicationFinancialBudget(
           {
-            application_document_id:
-              this.SelectedDocument()!.application_document_id,
-            is_correct: selectedStatus,
-            comment: this.state.validation_comment,
+            application_id: this.props.data.application_id,
+            financial_amount: this.state.amount,
           },
           (
             loading: boolean,
@@ -86,21 +125,18 @@ export class DocumentValidation extends Component<
               msg: string;
             } | null
           ) => {
-            this.setState({ loading: loading });
+            this.setState({ loading: true });
             if (res?.type === "success") {
-              this.setState({
-                success: "Status added successfully!",
-                error: "",
-              });
-              setTimeout(() => {
-                this.props.onSubmitUpdate();
-              }, 2000);
+              this.ValidateDocument(selectedStatus);
             }
             if (res?.type === "error") {
               this.setState({ error: res.msg, success: "", loading: false });
             }
           }
         );
+      } else {
+        this.ValidateDocument(selectedStatus);
+      }
     }
   };
   render() {
@@ -162,9 +198,14 @@ export class DocumentValidation extends Component<
             </div>
           </div>
           {/* Selected document */}
-          <div className="bg-primary-50 text-primary-900 rounded-md p-2 px-3 mt-3">
-            <div className="text-sm text-yellow-600 font-bold">
-              Selected Document
+          <div className="bg-primary-50 text-primary-900 rounded p-3 mt-3">
+            <div className="flex flex-row items-center gap-2 w-full border-b border-primary-200 pb-2 mb-2">
+              <div className="text-sm text-black font-bold">
+                Selected Document
+              </div>
+              <div className="text-sm font-bold px-2 rounded-full text-center w-max flex items-center justify-center bg-primary-800 text-white">
+                {this.props.selectedDocument.type} Document
+              </div>
             </div>
             <div className="font-bold">{this.props.selectedDocument.title}</div>
           </div>
@@ -225,6 +266,33 @@ export class DocumentValidation extends Component<
                   />
                 )}
               </div>
+              {this.props.selectedDocument.type === DocumentType.FINANCIAL && (
+                <div className="mb-4">
+                  <div className="text-sm mb-1 font-bold">
+                    Financial plan budget amount
+                  </div>
+                  {this.SelectedDocument() !== null &&
+                  this.SelectedDocument()!.is_validated === BooleanEnum.TRUE ? (
+                    <div className="font-bold text-sm">
+                      {"Amount submitted"}
+                    </div>
+                  ) : (
+                    <input
+                      type={"number"}
+                      className="bg-gray-100 rounded-md w-full px-3 py-2 text-sm"
+                      placeholder="Amount in the document (RWF)"
+                      value={this.state.amount}
+                      onChange={(e) =>
+                        this.setState({
+                          amount: e.target.value,
+                          error: "",
+                          success: "",
+                        })
+                      }
+                    />
+                  )}
+                </div>
+              )}
               {this.state.error !== "" && (
                 <div className="my-2">
                   <Alert

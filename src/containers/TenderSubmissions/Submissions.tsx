@@ -4,11 +4,13 @@ import { HiArrowSmLeft } from "react-icons/hi";
 import {
   ApplicationDecisionEnum,
   ApplicationDocIsCorrect,
+  ApplicationStatus,
   BooleanEnum,
   DocFolder,
 } from "../../actions";
 import {
   RequiredDocumentSummary,
+  RequiredDocumentSummaryExport,
   TenderForValidationInterface,
 } from "../../actions/tender.action";
 import {
@@ -17,6 +19,7 @@ import {
   TenderSubmissionsListInterface,
 } from "../../actions/validate-tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
+import ExportToExcel from "../../components/GenerateReport/ExportToExcel";
 import PdfViewer from "../../components/PdfViewer/PdfViewer";
 import { API_URL } from "../../utils/api";
 import { commaFy, search } from "../../utils/functions";
@@ -52,6 +55,7 @@ interface SubmissionsState {
     document_id: string;
     document: string;
   } | null;
+  selectedApplicationId: string;
 }
 
 export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
@@ -68,6 +72,7 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
       addingFinancialError: null,
       addingFinancialSuccess: null,
       selectedDocumentPreview: null,
+      selectedApplicationId: "",
     };
   }
 
@@ -85,7 +90,16 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
       ) => {
         this.setState({ loading: loading });
         if (res?.type === "success") {
-          this.setState({ data: res.data, loading: false, error: "" });
+          this.setState({
+            data:
+              res.data !== null
+                ? res.data.filter(
+                    (itm) => itm.status === ApplicationStatus.SUBMITTED
+                  )
+                : res.data,
+            loading: false,
+            error: "",
+          });
         }
         if (res?.type === "error") {
           this.setState({ error: res.msg, loading: false, data: [] });
@@ -144,6 +158,19 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
         })),
       });
     }
+  };
+
+  GetFilteredData = () => {
+    if (this.state.data === null) {
+      return [];
+    }
+    var response = this.state.data;
+    if (this.state.selectedApplicationId !== "") {
+      response = response.filter(
+        (itm) => itm.application_id === this.state.selectedApplicationId
+      );
+    }
+    return response;
   };
 
   componentDidMount = () => {
@@ -369,13 +396,60 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
           </div>
         ) : (
           <div className="mt-2 p-3">
-            <div className="mb-4">
+            <div className="mb-4 flex flex-row items-center gap-2">
+              <select
+                onChange={(e) =>
+                  this.setState({ selectedApplicationId: e.target.value })
+                }
+                value={this.state.selectedApplicationId}
+                className="bg-primary-50 rounded-md text-sm px-4 py-3 w-1/3 font-bold text-primary-900"
+              >
+                <option value="">All companies - Select</option>
+                {this.state.data.map((company, c) => (
+                  <option key={c + 1} value={company.application_id}>
+                    {company.compony_name} - {company.tin_number}
+                  </option>
+                ))}
+              </select>
               <input
                 type="search"
-                className="bg-gray-100 rounded-md text-sm px-4 py-3 w-full"
+                className="bg-gray-100 rounded-md text-sm px-3 py-3 w-full"
                 value={this.state.searchValue}
                 onChange={(e) => this.setState({ searchValue: e.target.value })}
-                placeholder="Search by name"
+                placeholder="Search by document name"
+              />
+              <ExportToExcel
+                fileData={(
+                  search(
+                    this.props.tenderSummaryDetails.required_documents,
+                    this.state.searchValue
+                  ) as RequiredDocumentSummaryExport[]
+                )
+                  .map((item) => {
+                    var data = item;
+                    for (const selected of this.GetFilteredData()) {
+                      data[selected.compony_name] =
+                        this.GetTenderCompanyDocument(
+                          selected.documents,
+                          item.document_id
+                        ) === null
+                          ? "Doc not found!"
+                          : this.GetTenderCompanyDocument(
+                              selected.documents,
+                              item.document_id
+                            )!.is_correct;
+                    }
+                    return data;
+                  })
+                  .map((itm, k) => ({
+                    No: k + 1,
+                    ...itm,
+                  }))}
+                fileName={
+                  this.props.tenderSummaryDetails.tender_name +
+                  " - Tender submissions summary"
+                }
+                btnName="Export Excel"
               />
             </div>
             {this.state.error !== "" && (
@@ -407,7 +481,7 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
                     <tr>
                       <th className="px-3 py-2 border">#</th>
                       <th className="px-3 py-2 border">Document name</th>
-                      {this.state.data.map((item, i) => (
+                      {this.GetFilteredData().map((item, i) => (
                         <th
                           key={i + 1}
                           className="px-2 py-2 border w-12 truncate"
@@ -428,7 +502,7 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
                         <td className="px-3 py-2 border w-5">{i + 1}</td>
                         <td className="px-3 py-2 border">{item.title}</td>
                         {this.state.data !== null &&
-                          this.state.data.map((company, c) => (
+                          this.GetFilteredData().map((company, c) => (
                             <td key={c + 1} className="px-2 py-2 border w-10">
                               {this.GetStatusColor(
                                 this.GetTenderCompanyDocument(
@@ -450,7 +524,7 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
                           Company Financial amount
                         </div>
                       </td>
-                      {this.state.data.map((company, c) => (
+                      {this.GetFilteredData().map((company, c) => (
                         <td key={c + 1} className="px-1 py-1 border w-10">
                           {/*  */}
                           <SetAmountBudget
@@ -462,7 +536,7 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
                     </tr>
                     <tr>
                       <td colSpan={2} className="px-3 py-2"></td>
-                      {this.state.data.map((company, c) => (
+                      {this.GetFilteredData().map((company, c) => (
                         <td key={c + 1} className="px-2 py-2 border w-10">
                           {/*  */}
                           <UpdateCompanyDecision
@@ -497,6 +571,7 @@ export class Submissions extends Component<SubmissionsProps, SubmissionsState> {
                   b.financial_amount === null ? 0 : b.financial_amount;
                 return small - big;
               })}
+            selectedApplicationId={this.state.selectedApplicationId}
           />
         )}
       </div>

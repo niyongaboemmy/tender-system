@@ -9,6 +9,7 @@ import {
   TenderForValidationInterface,
 } from "../../actions/tender.action";
 import Alert, { AlertType } from "../../components/Alert/Alert";
+import ExportToExcel from "../../components/GenerateReport/ExportToExcel";
 import LoadingComponent from "../../components/Loading/LoadingComponent";
 import Modal, { Themes, ModalSize } from "../../components/Modal/Modal";
 import { StoreState } from "../../reducers";
@@ -87,14 +88,31 @@ export class _TenderDocumentsValidation extends Component<
       );
     }
   };
-  GetTotalDocuments = (
-    tenderSummaryDetails: TenderForValidationInterface
-  ): number => {
+  // GetTotalDocuments = (
+  //   tenderSummaryDetails: TenderForValidationInterface
+  // ): number => {
+  //   var total: number = 0;
+  //   for (const item of tenderSummaryDetails.required_documents) {
+  //     total += item.total_document;
+  //   }
+  //   return total;
+  // };
+  GetTotalDocuments = (data: TenderForValidationInterface): number => {
     var total: number = 0;
-    for (const item of tenderSummaryDetails.required_documents) {
+    for (const item of data.required_documents) {
       total += item.total_document;
     }
     return total;
+  };
+  GetTotalValidate = (data: TenderForValidationInterface): number => {
+    var total: number = 0;
+    for (const item of data.required_documents) {
+      total += item.total_validated;
+    }
+    return total;
+  };
+  GetTotalWaiting = (data: TenderForValidationInterface): number => {
+    return this.GetTotalDocuments(data) - this.GetTotalValidate(data);
   };
   componentDidMount = () => {
     this.GetTendersSummary();
@@ -135,7 +153,7 @@ export class _TenderDocumentsValidation extends Component<
               <LoadingComponent />
             ) : (
               <div className="bg-white rounded-md">
-                <div className="p-3">
+                <div className="p-3 flex flex-row items-center gap-2">
                   <input
                     type="search"
                     className="bg-gray-100 w-full px-3 py-3 text-sm rounded-md"
@@ -144,6 +162,30 @@ export class _TenderDocumentsValidation extends Component<
                       this.setState({ searchData: e.target.value })
                     }
                     value={this.state.searchData}
+                  />
+                  <ExportToExcel
+                    fileData={(
+                      search(
+                        this.state.tenders,
+                        this.state.searchData
+                      ) as TenderForValidationInterface[]
+                    ).map((item, i) => ({
+                      No: i + 1,
+                      TenderName: item.tender_name,
+                      TenderCategory: item.category,
+                      TenderLevel: item.level,
+                      PublicationDate: DateTimeToString(item.published_date),
+                      ClosingDate: DateTimeToString(item.closing_date),
+                      TotalSubmissions:
+                        item.required_documents.length === 0
+                          ? 0
+                          : item.required_documents[0].total_document,
+                      TotalDocuments: this.GetTotalDocuments(item),
+                      ValidatedDocuments: this.GetTotalValidate(item),
+                      WaitingDocuments: this.GetTotalWaiting(item),
+                    }))}
+                    fileName={"Tenders documents summary"}
+                    btnName="Export Excel"
                   />
                 </div>
                 {this.state.error !== "" && (
@@ -182,6 +224,9 @@ export class _TenderDocumentsValidation extends Component<
                           <th className="px-3 py-2 border">
                             Total submissions
                           </th>
+                          <th className="px-3 py-2 border">Total documents</th>
+                          <th className="px-3 py-2 border">Total validated</th>
+                          <th className="px-3 py-2 border">Total waiting</th>
                           <th className="px-3 py-2 border"></th>
                         </tr>
                       </thead>
@@ -221,6 +266,21 @@ export class _TenderDocumentsValidation extends Component<
                                   ? 0
                                   : item.required_documents[0].total_document
                               )}
+                            </td>
+                            <td className="px-2 py-2 border text-center">
+                              {commaFy(this.GetTotalDocuments(item))}
+                            </td>
+                            <td className="px-2 py-2 border text-center">
+                              {commaFy(this.GetTotalValidate(item))}
+                            </td>
+                            <td
+                              className={`px-2 py-2 border text-center ${
+                                this.GetTotalWaiting(item) > 0
+                                  ? "text-red-600 font-bold bg-red-50"
+                                  : ""
+                              }`}
+                            >
+                              {commaFy(this.GetTotalWaiting(item))}
                             </td>
                             <td className="px-2 py-1 border w-12">
                               <div className="flex flex-row items-center justify-center gap-2 bg-primary-50 text-primary-900 group-hover:bg-primary-800 group-hover:text-white text-sm px-3 py-2 rounded-md font-semibold">
@@ -268,7 +328,17 @@ export class _TenderDocumentsValidation extends Component<
                 onOpenDocument={(doc_id: string) => {
                   this.state.selectedTender !== null &&
                     this.props.history.push(
-                      `/validate-application-document/${this.state.selectedTender.tender_id}/${doc_id}`
+                      `/validate-application-document/${
+                        this.state.selectedTender.tender_id
+                      }/${doc_id}/${
+                        this.state.selectedTender.required_documents.find(
+                          (itm) => itm.document_id === doc_id
+                        )?.opening_date
+                      }/${
+                        this.state.selectedTender.required_documents.find(
+                          (itm) => itm.document_id === doc_id
+                        )?.title
+                      }`
                     );
                 }}
               />

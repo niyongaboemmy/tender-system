@@ -229,7 +229,7 @@ class _BidderApplications extends Component<
                               </div>
                               <div className="grid grid-cols-12 gap-1 text-sm w-full">
                                 <div className="col-span-12 lg:col-span-6">
-                                  <div className="flex flex-row items-center gap-2">
+                                  <div className="flex flex-row items-center gap-2 text-xs">
                                     <span className="text-gray-500">
                                       Publication date:
                                     </span>
@@ -237,9 +237,20 @@ class _BidderApplications extends Component<
                                       {DateTimeToString(item.published_date)}
                                     </span>
                                   </div>
+                                  {item.submitted_at !== null && (
+                                    <div className="flex flex-row items-center gap-2 text-xs">
+                                      <span className="text-gray-500">
+                                        Submission date:
+                                      </span>
+                                      <span>
+                                        {item.submitted_at !== null &&
+                                          DateTimeToString(item.submitted_at)}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="col-span-12 lg:col-span-6">
-                                  <div className="flex flex-row items-center gap-2">
+                                  <div className="flex flex-row items-center gap-2 text-xs">
                                     <div className="flex flex-row items-center gap-1 text-gray-500">
                                       <div>
                                         <IoMdTime className="text-yellow-600 text-xl" />

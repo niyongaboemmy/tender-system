@@ -1,6 +1,12 @@
 import React, { Component, Fragment } from "react";
 import { StoreState } from "../../reducers";
-import { Auth, FC_GetSystemInfo, FC_Login, System } from "../../actions";
+import {
+  Auth,
+  FC_GetSystemInfo,
+  FC_Login,
+  System,
+  TenderVisibility,
+} from "../../actions";
 import { connect } from "react-redux";
 import Container from "../../components/Container/Container";
 import {
@@ -85,6 +91,28 @@ class _App extends Component<AppProps, AppState> {
         }
       }
     );
+  };
+
+  FilteredData = () => {
+    if (this.state.tenders === null) {
+      return [];
+    }
+    var data: TenderOfferForBiddersInterface[] = [];
+    if (
+      this.props.auth.isAuthenticated === true &&
+      this.props.auth.user !== null &&
+      this.props.auth.user.allowed_tender === TenderVisibility.PRIVATE
+    ) {
+      data = this.state.tenders;
+    } else {
+      data = this.state.tenders.filter(
+        (itm) => itm.visibility === TenderVisibility.PUBLIC
+      );
+    }
+    return search(
+      data,
+      this.state.searchData
+    ) as TenderOfferForBiddersInterface[];
   };
 
   CreateApplicationDraft = (tender: TenderOfferForBiddersInterface) => {
@@ -255,12 +283,7 @@ class _App extends Component<AppProps, AppState> {
                       available for application
                     </div>
                   </div>
-                ) : (
-                    search(
-                      this.state.tenders,
-                      this.state.searchData
-                    ) as TenderOfferForBiddersInterface[]
-                  ).length === 0 ? (
+                ) : this.FilteredData().length === 0 ? (
                   <div className="flex flex-col items-center justify-center bg-white rounded-md p-6 w-full py-10">
                     <div>
                       <RiSearchLine className="text-8xl text-gray-300" />
@@ -272,12 +295,7 @@ class _App extends Component<AppProps, AppState> {
                   </div>
                 ) : (
                   <div className="mt-3">
-                    {(
-                      search(
-                        this.state.tenders,
-                        this.state.searchData
-                      ) as TenderOfferForBiddersInterface[]
-                    ).map((item, i) => (
+                    {this.FilteredData().map((item, i) => (
                       <div
                         onClick={() => this.setState({ selectedTender: item })}
                         key={i + 1}
@@ -354,6 +372,7 @@ class _App extends Component<AppProps, AppState> {
                       this.CreateApplicationDraft(tender);
                     }
                   }}
+                  auth={this.props.auth}
                 />
               </Container>
             )}

@@ -119,14 +119,14 @@ export class UpdateCompanyDecision extends Component<
                     ApplicationDecisionEnum.PASS
                       ? "hover:bg-green-50"
                       : "hover:bg-red-100"
-                  } px-3 py-2 pl-2 rounded-md w-full`}
+                  } px-3 py-2 pl-2 rounded-md w-max`}
                   onClick={() => this.setState({ openSelect: true })}
                 >
                   <div>
                     {this.state.selectedApplicationStatus ===
                     ApplicationDecisionEnum.PASS ? (
                       <div>
-                        <BsCheckCircle className="text-2xl text-green-600" />
+                        <BsCheckCircle className="text-2xl text-green-500" />
                       </div>
                     ) : (
                       <div>

@@ -33,6 +33,20 @@ export interface RequiredDocumentSummary {
   total_validated: number;
 }
 
+export interface RequiredDocumentSummaryExport {
+  title: string;
+  document_id: string;
+  opening_date: string;
+  required: BooleanEnum;
+  step: StepItem;
+  type: DocumentType;
+  tender_id: string;
+  required_document_id: string;
+  total_document: number;
+  total_validated: number;
+  [key: string]: any;
+}
+
 export interface CreateTenderDataInterface {
   category_id: string;
   company_id: string;
@@ -69,6 +83,7 @@ export interface GetTenderOfferInterface {
   closing_date: string;
   bid_document: string;
   documents: RequiredDocumentInterface[];
+  visibility: TenderVisibility;
 }
 
 export interface TenderOfferForBiddersInterface {
@@ -88,6 +103,7 @@ export interface TenderOfferForBiddersInterface {
   closing_date: string;
   bid_document: string;
   documents: RequiredDocumentInterface[];
+  visibility: TenderVisibility;
 }
 
 export interface CompanyTenderApplicationInterface {
@@ -118,6 +134,7 @@ export interface CompanyTenderApplicationInterface {
     tender_id: string;
     required_document_id: string;
   }[];
+  submitted_at: string | null;
 }
 
 export const FC_CreateTender = async (
@@ -139,6 +156,7 @@ export const FC_CreateTender = async (
     formData.append("bid_document", data.bid_document);
     formData.append("published_date", data.published_date);
     formData.append("closing_date", data.closing_date);
+    formData.append("visibility", data.visibility);
     formData.append(
       "required_document",
       JSON.stringify(data.required_document)

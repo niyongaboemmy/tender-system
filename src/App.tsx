@@ -253,7 +253,7 @@ class _App extends React.Component<AppProps, AppState> {
                       )}
                       {this.props.auth.user?.type === UserType.HOLDER && (
                         <ProtectedRoute
-                          path="/validate-application-document/:tender_id/:document_id"
+                          path="/validate-application-document/:tender_id/:document_id/:opening_time/:document_title"
                           component={ValidateApplicationDocument}
                           isAuthenticated={this.props.auth.isAuthenticated}
                           authenticationPath={authenticationPath}
